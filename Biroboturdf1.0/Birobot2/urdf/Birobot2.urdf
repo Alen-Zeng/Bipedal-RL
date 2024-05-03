@@ -1,0 +1,1679 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="Birobot2">
+
+  <mujoco>
+        <compiler 
+        meshdir="../meshes/" 
+        balanceinertia="true" 
+        discardvisual="false" />
+  </mujoco>
+
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="5.99390134053968E-06 1.37565863127936E-06 0.0134214731182759"
+        rpy="0 0 0" />
+      <mass
+        value="0.258330708046415" />
+      <inertia
+        ixx="0.000205392717372447"
+        ixy="5.72794785505961E-09"
+        ixz="-8.13468143023676E-08"
+        iyy="0.000124376821334119"
+        iyz="4.71754114620172E-10"
+        izz="0.000305396326492831" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0.501960784313725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Lhipyaw_Link">
+    <inertial>
+      <origin
+        xyz="0.0442799756260495 0.0202466396770671 -0.054610579727696"
+        rpy="0 0 0" />
+      <mass
+        value="0.440038994494787" />
+      <inertia
+        ixx="0.000691886361443098"
+        ixy="-3.18926036339536E-05"
+        ixz="7.9122290714126E-05"
+        iyy="0.000489817105992609"
+        iyz="8.51715820057588E-05"
+        izz="0.000365749264198211" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lhipyaw_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lhipyaw_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lhipyaw_Joint"
+    type="revolute">
+    <origin
+      xyz="0 0.0369999999999999 -0.000999999999999945"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Lhipyaw_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lhiproll_Link">
+    <inertial>
+      <origin
+        xyz="-7.94460344659643E-05 0.0101870947775433 -0.0643986155760032"
+        rpy="0 0 0" />
+      <mass
+        value="0.351538870619044" />
+      <inertia
+        ixx="0.00033009601708043"
+        ixy="-2.69015433690005E-10"
+        ixz="2.34450588623238E-07"
+        iyy="0.000500024436537399"
+        iyz="3.36497587994521E-07"
+        izz="0.000205265136778919" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lhiproll_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lhiproll_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lhiproll_Joint"
+    type="revolute">
+    <origin
+      xyz="0.0424999999999998 0.0270000000000001 -0.0679999999999998"
+      rpy="0 -1.5707963267949 0" />
+    <parent
+      link="Lhipyaw_Link" />
+    <child
+      link="Lhiproll_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lthigh_Link">
+    <inertial>
+      <origin
+        xyz="-0.0313714075140075 -0.0398928694813062 -0.0418666617621862"
+        rpy="0 0 0" />
+      <mass
+        value="0.881225242840738" />
+      <inertia
+        ixx="0.00184566747511136"
+        ixy="-0.00110239593138809"
+        ixz="8.85130741105728E-07"
+        iyy="0.00134920782992085"
+        iyz="1.09468000794382E-06"
+        izz="0.00313386862508158" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lthigh_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.776470588235294 0.756862745098039 0.737254901960784 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lthigh_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lthigh_Joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.000166954779692381 -0.0772201496052748"
+      rpy="1.5707963267949 -1.5707963267949 0" />
+    <parent
+      link="Lhiproll_Link" />
+    <child
+      link="Lthigh_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lknee_Link0">
+    <inertial>
+      <origin
+        xyz="5.55111512312578E-17 0.0913612730101381 -0.0200012432084049"
+        rpy="0 0 0" />
+      <mass
+        value="0.22379773991973" />
+      <inertia
+        ixx="0.000632927279636257"
+        ixy="1.56828304152738E-07"
+        ixz="2.92198815384956E-21"
+        iyy="1.61549725403257E-05"
+        iyz="-1.59879090618596E-19"
+        izz="0.000645485415004075" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lknee_Joint0"
+    type="revolute">
+    <origin
+      xyz="-0.135596853600906 -0.170697080506769 -0.0531660904406152"
+      rpy="3.14159265358979 0 0.803668194526438" />
+    <parent
+      link="Lthigh_Link" />
+    <child
+      link="Lknee_Link0" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link0">
+    <inertial>
+      <origin
+        xyz="-0.0231596276959213 0.0212536250305395 -0.0200325883655559"
+        rpy="0 0 0" />
+      <mass
+        value="0.18428359031599" />
+      <inertia
+        ixx="0.000117881352090235"
+        ixy="-6.79775348356106E-05"
+        ixz="4.65230337755936E-20"
+        iyy="9.83454687660767E-05"
+        iyz="2.52513224568675E-20"
+        izz="0.000200626794325498" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint0"
+    type="revolute">
+    <origin
+      xyz="0 0.18 0"
+      rpy="0 0 0" />
+    <parent
+      link="Lknee_Link0" />
+    <child
+      link="Lankle_Link0" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lknee_Link1">
+    <inertial>
+      <origin
+        xyz="-0.00439333540277499 -0.00125394710836006 -0.0113498370878502"
+        rpy="0 0 0" />
+      <mass
+        value="0.0636115148670426" />
+      <inertia
+        ixx="1.09281100967918E-05"
+        ixy="-1.81849121120284E-06"
+        ixz="-1.70837071103934E-06"
+        iyy="1.67803507539777E-05"
+        iyz="-4.87603680739178E-07"
+        izz="2.29402864022895E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lknee_Joint1"
+    type="revolute">
+    <origin
+      xyz="0 0 -0.0586660904406152"
+      rpy="-3.14159265358979 0 2.65249236104811" />
+    <parent
+      link="Lthigh_Link" />
+    <child
+      link="Lknee_Link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lknee_Link2">
+    <inertial>
+      <origin
+        xyz="0.101626362064937 -0.0229385974251411 0.000999999999999994"
+        rpy="0 0 0" />
+      <mass
+        value="0.0607220251317532" />
+      <inertia
+        ixx="1.30341920335388E-05"
+        ixy="5.33635937633788E-05"
+        ixz="5.04395202149566E-20"
+        iyy="0.000237409431624889"
+        iyz="-1.1879301950546E-20"
+        izz="0.000249838377270734" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lknee_Joint2"
+    type="revolute">
+    <origin
+      xyz="-0.0384639434646877 -0.0109783902802425 -0.0245"
+      rpy="-3.14159265358979 0 -1.610592190996" />
+    <parent
+      link="Lknee_Link1" />
+    <child
+      link="Lknee_Link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lknee_Link00">
+    <inertial>
+      <origin
+        xyz="-2.22044604925031E-16 0.0560137350752595 -0.00401510689070324"
+        rpy="0 0 0" />
+      <mass
+        value="0.212545654592" />
+      <inertia
+        ixx="0.000632625900754351"
+        ixy="1.5682830415276E-07"
+        ixz="2.9139717748976E-21"
+        iyy="1.58535936584198E-05"
+        iyz="-7.84167787566113E-22"
+        izz="0.000645279471593949" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link00.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lknee_Link00.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lknee_Joint00"
+    type="revolute">
+    <origin
+      xyz="0.212650314510188 -0.047998372250716 -0.00300000000000002"
+      rpy="-3.14159265358979 0 2.82376894966191" />
+    <parent
+      link="Lknee_Link2" />
+    <child
+      link="Lknee_Link00" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link34">
+    <inertial>
+      <origin
+        xyz="-0.0204093624761537 -0.0112560684225899 -0.0200816798037087"
+        rpy="0 0 0" />
+      <mass
+        value="0.0264310864589234" />
+      <inertia
+        ixx="3.97096074542198E-06"
+        ixy="1.05879118406788E-20"
+        ixz="-1.47573508041707E-21"
+        iyy="3.97096074542198E-06"
+        iyz="-9.64137851562625E-24"
+        izz="7.59890052735323E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link34.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link34.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint34"
+    type="revolute">
+    <origin
+      xyz="-0.135596853600906 -0.170697080506769 -0.0531660904406152"
+      rpy="3.14159265358979 0 0.803668194526438" />
+    <parent
+      link="Lthigh_Link" />
+    <child
+      link="Lankle_Link34" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link1">
+    <inertial>
+      <origin
+        xyz="0.00497530862523779 0.00135108879007165 -0.0123696487398572"
+        rpy="0 0 0" />
+      <mass
+        value="0.0567948015231428" />
+      <inertia
+        ixx="8.35459871318398E-06"
+        ixy="-1.69026023786498E-06"
+        ixz="1.84867561298549E-06"
+        iyy="1.41198821303684E-05"
+        iyz="5.02024112537162E-07"
+        izz="1.75229955675705E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint1"
+    type="revolute">
+    <origin
+      xyz="-0.0622003915600487 -0.0783014130764995 -0.00616609044061522"
+      rpy="0 0 2.65249236104811" />
+    <parent
+      link="Lthigh_Link" />
+    <child
+      link="Lankle_Link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0451240377309678 -0.0380108039753531 0.00100000000000001"
+        rpy="0 0 0" />
+      <mass
+        value="0.0400054950366333" />
+      <inertia
+        ixx="1.7569895782706E-05"
+        ixy="-2.00745668554044E-05"
+        ixz="-1.3629548140825E-20"
+        iyy="2.44910946664815E-05"
+        iyz="-1.14528951036416E-20"
+        izz="4.17150522558605E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint2"
+    type="revolute">
+    <origin
+      xyz="0.0386019799331064 0.0104827069616605 -0.026"
+      rpy="3.14159265358979 0 -1.05295193254627" />
+    <parent
+      link="Lankle_Link1" />
+    <child
+      link="Lankle_Link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link3">
+    <inertial>
+      <origin
+        xyz="-0.0116537671271683 0.0198150832361688 0.000918320196291303"
+        rpy="0 0 0" />
+      <mass
+        value="0.0264310864589234" />
+      <inertia
+        ixx="3.97096074542197E-06"
+        ixy="6.14098886759368E-21"
+        ixz="1.84121443092571E-21"
+        iyy="3.97096074542198E-06"
+        iyz="-6.63334986171782E-22"
+        izz="7.59890052735323E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint3"
+    type="revolute">
+    <origin
+      xyz="-0.0902480754619956 -0.0760216079506738 0"
+      rpy="0 0 0.252680255142078" />
+    <parent
+      link="Lankle_Link2" />
+    <child
+      link="Lankle_Link3" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link4">
+    <inertial>
+      <origin
+        xyz="-0.0404235884266395 -0.0732955449284946 0.00100000000000001"
+        rpy="0 0 0" />
+      <mass
+        value="0.0501454226790875" />
+      <inertia
+        ixx="0.000110602880940475"
+        ixy="-6.05495642128705E-05"
+        ixz="1.39198841140206E-20"
+        iyy="3.42091580202111E-05"
+        iyz="2.46784788669294E-20"
+        izz="0.000144317547995641" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint4"
+    type="revolute">
+    <origin
+      xyz="-0.0346410161513776 0.0200000000000001 0"
+      rpy="0 0 -2.0943951023932" />
+    <parent
+      link="Lankle_Link3" />
+    <child
+      link="Lankle_Link4" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Lankle_Link00">
+    <inertial>
+      <origin
+        xyz="0.0168326946774392 0.0204699470448799 0.00396741163444413"
+        rpy="0 0 0" />
+      <mass
+        value="0.18428359031599" />
+      <inertia
+        ixx="0.000117881352090235"
+        ixy="-6.79775348356106E-05"
+        ixz="7.26896733291044E-20"
+        iyy="9.83454687660767E-05"
+        iyz="6.46242882021946E-20"
+        izz="0.000200626794325498" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link00.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Lankle_Link00.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Lankle_Joint00"
+    type="revolute">
+    <origin
+      xyz="-0.0869286426422058 -0.157617927560235 -0.00299999999999988"
+      rpy="0 0 2.63758708122652" />
+    <parent
+      link="Lankle_Link4" />
+    <child
+      link="Lankle_Link00" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rhipyaw_Link">
+    <inertial>
+      <origin
+        xyz="0.0442799805671885 -0.0202555367839449 -0.0546054524894954"
+        rpy="0 0 0" />
+      <mass
+        value="0.440038842475869" />
+      <inertia
+        ixx="0.000691886302275348"
+        ixy="3.19656422669199E-05"
+        ixz="7.90801283968309E-05"
+        iyy="0.000489769895861423"
+        iyz="-8.51988313496433E-05"
+        izz="0.00036579641079241" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rhipyaw_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rhipyaw_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rhipyaw_Joint"
+    type="revolute">
+    <origin
+      xyz="0 -0.0370000000000002 -0.00100000000000017"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Rhipyaw_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rhiproll_Link">
+    <inertial>
+      <origin
+        xyz="-7.11487427006384E-05 -0.0101870948289008 -0.0644084313705051"
+        rpy="0 0 0" />
+      <mass
+        value="0.35153887139329" />
+      <inertia
+        ixx="0.000330042307674053"
+        ixy="5.49035174286966E-08"
+        ixz="2.43152307240281E-07"
+        iyy="0.00050002443656033"
+        iyz="-4.00865262176402E-07"
+        izz="0.000205318846208455" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rhiproll_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rhiproll_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rhiproll_Joint"
+    type="revolute">
+    <origin
+      xyz="0.0424999999999994 -0.0269999999999998 -0.0679999999999999"
+      rpy="0 -1.5707963267949 0" />
+    <parent
+      link="Rhipyaw_Link" />
+    <child
+      link="Rhiproll_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rthigh_Link">
+    <inertial>
+      <origin
+        xyz="-0.0314575352195419 0.0398844834664672 -0.0418687215471447"
+        rpy="0 0 0" />
+      <mass
+        value="0.881225241274488" />
+      <inertia
+        ixx="0.00184547388254446"
+        ixy="0.00110337408653132"
+        ixz="1.30206678759569E-06"
+        iyy="0.00134940142236214"
+        iyz="-1.14077155598705E-06"
+        izz="0.0031338686249956" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rthigh_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0.501960784313725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rthigh_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rthigh_Joint"
+    type="revolute">
+    <origin
+      xyz="0 0.000166954779692419 -0.0772201496052745"
+      rpy="1.5707963267949 -1.5707963267949 0" />
+    <parent
+      link="Rhiproll_Link" />
+    <child
+      link="Rthigh_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rknee_Link0">
+    <inertial>
+      <origin
+        xyz="0 -0.0913612730101381 -0.0200012432084048"
+        rpy="0 0 0" />
+      <mass
+        value="0.22379773991973" />
+      <inertia
+        ixx="0.000632927279636257"
+        ixy="1.56828306381712E-07"
+        ixz="1.71625643798278E-21"
+        iyy="1.61549725403256E-05"
+        iyz="1.59496728221719E-19"
+        izz="0.000645485415004075" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rknee_Joint0"
+    type="revolute">
+    <origin
+      xyz="-0.135596853600907 0.170697080506769 -0.0531660904406152"
+      rpy="-3.14159265358979 0 -0.803668194526438" />
+    <parent
+      link="Rthigh_Link" />
+    <child
+      link="Rknee_Link0" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link0">
+    <inertial>
+      <origin
+        xyz="-0.0231596276959213 -0.0212536250305394 -0.0200325883655559"
+        rpy="0 0 0" />
+      <mass
+        value="0.18428359031599" />
+      <inertia
+        ixx="0.000117881352090235"
+        ixy="6.79775348356108E-05"
+        ixz="-3.85611366079624E-20"
+        iyy="9.83454687660769E-05"
+        iyz="-7.34200375505124E-20"
+        izz="0.000200626794325499" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint0"
+    type="revolute">
+    <origin
+      xyz="0 -0.18 0"
+      rpy="0 0 0" />
+    <parent
+      link="Rknee_Link0" />
+    <child
+      link="Rankle_Link0" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rknee_Link1">
+    <inertial>
+      <origin
+        xyz="-0.00439333540277497 0.00125394710836006 -0.0113498370878502"
+        rpy="0 0 0" />
+      <mass
+        value="0.0636115148670426" />
+      <inertia
+        ixx="1.09281100967919E-05"
+        ixy="1.81849121120302E-06"
+        ixz="-1.70837071103934E-06"
+        iyy="1.67803507539775E-05"
+        iyz="4.87603680739183E-07"
+        izz="2.29402864022895E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rknee_Joint1"
+    type="revolute">
+    <origin
+      xyz="0 0 -0.0586660904406152"
+      rpy="3.14159265358979 0 -2.65249236104811" />
+    <parent
+      link="Rthigh_Link" />
+    <child
+      link="Rknee_Link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rknee_Link2">
+    <inertial>
+      <origin
+        xyz="0.0959229513432991 0.0216512518994762 0.00100000000000003"
+        rpy="0 0 0" />
+      <mass
+        value="0.0607220251317533" />
+      <inertia
+        ixx="1.30341920335387E-05"
+        ixy="-5.33635937633787E-05"
+        ixz="5.39812818276047E-20"
+        iyy="0.00023740943162489"
+        iyz="1.32103254849298E-20"
+        izz="0.000249838377270734" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rknee_Joint2"
+    type="revolute">
+    <origin
+      xyz="-0.0384639434646876 0.0109783902802427 -0.0245"
+      rpy="3.14159265358979 0 1.610592190996" />
+    <parent
+      link="Rknee_Link1" />
+    <child
+      link="Rknee_Link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rknee_Link00">
+    <inertial>
+      <origin
+        xyz="-2.22044604925031E-16 -0.0513612730101349 -0.00400124320840478"
+        rpy="0 0 0" />
+      <mass
+        value="0.22379773991973" />
+      <inertia
+        ixx="0.000632927279636257"
+        ixy="1.56828306381692E-07"
+        ixz="1.75579929631321E-21"
+        iyy="1.61549725403256E-05"
+        iyz="3.71869690632966E-22"
+        izz="0.000645485415004075" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link00.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rknee_Link00.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rknee_Joint00"
+    type="revolute">
+    <origin
+      xyz="0.212650314510188 0.0479983722507159 -0.003"
+      rpy="3.14159265358979 0 -2.82376894966191" />
+    <parent
+      link="Rknee_Link2" />
+    <child
+      link="Rknee_Link00" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link34">
+    <inertial>
+      <origin
+        xyz="-0.0204093624761538 0.0112560684225899 -0.0200816798037087"
+        rpy="0 0 0" />
+      <mass
+        value="0.0264310864589234" />
+      <inertia
+        ixx="3.97096074542197E-06"
+        ixy="-6.14098886759368E-21"
+        ixz="-9.17426403478248E-22"
+        iyy="3.97096074542199E-06"
+        iyz="2.14870781331448E-22"
+        izz="7.59890052735324E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link34.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link34.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint34"
+    type="revolute">
+    <origin
+      xyz="-0.135596853600907 0.170697080506769 -0.0531660904406152"
+      rpy="-3.14159265358979 0 -0.803668194526438" />
+    <parent
+      link="Rthigh_Link" />
+    <child
+      link="Rankle_Link34" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link1">
+    <inertial>
+      <origin
+        xyz="0.00497530862523785 -0.00135108879007159 -0.0123696487398572"
+        rpy="0 0 0" />
+      <mass
+        value="0.0567948015231428" />
+      <inertia
+        ixx="8.35459871318397E-06"
+        ixy="1.69026023786495E-06"
+        ixz="1.8486756129855E-06"
+        iyy="1.41198821303684E-05"
+        iyz="-5.02024112537153E-07"
+        izz="1.75229955675705E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint1"
+    type="revolute">
+    <origin
+      xyz="-0.0622003915600491 0.0783014130764996 -0.00616609044061517"
+      rpy="0 0 -2.65249236104811" />
+    <parent
+      link="Rthigh_Link" />
+    <child
+      link="Rankle_Link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0451240377309678 0.0380108039753531 0.00100000000000003"
+        rpy="0 0 0" />
+      <mass
+        value="0.0400054950366333" />
+      <inertia
+        ixx="1.7569895782706E-05"
+        ixy="2.00745668554044E-05"
+        ixz="-1.44764842178641E-20"
+        iyy="2.44910946664815E-05"
+        iyz="1.18601250773845E-20"
+        izz="4.17150522558605E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint2"
+    type="revolute">
+    <origin
+      xyz="0.0386019799331065 -0.0104827069616604 -0.026"
+      rpy="-3.14159265358979 0 1.05295193254627" />
+    <parent
+      link="Rankle_Link1" />
+    <child
+      link="Rankle_Link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link3">
+    <inertial>
+      <origin
+        xyz="-0.0116537671271683 -0.0198150832361686 0.000918320196291345"
+        rpy="0 0 0" />
+      <mass
+        value="0.0264310864589234" />
+      <inertia
+        ixx="3.97096074542197E-06"
+        ixy="5.50571415715295E-21"
+        ixz="2.42530337868542E-21"
+        iyy="3.97096074542199E-06"
+        iyz="5.49979491508164E-22"
+        izz="7.59890052735324E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint3"
+    type="revolute">
+    <origin
+      xyz="-0.0902480754619956 0.0760216079506738 0"
+      rpy="0 0 -0.252680255142078" />
+    <parent
+      link="Rankle_Link2" />
+    <child
+      link="Rankle_Link3" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link4">
+    <inertial>
+      <origin
+        xyz="-0.0404235884266397 0.0732955449284944 0.001"
+        rpy="0 0 0" />
+      <mass
+        value="0.0501454226790876" />
+      <inertia
+        ixx="0.000110602880940475"
+        ixy="6.05495642128708E-05"
+        ixz="1.34553768123227E-20"
+        iyy="3.42091580202114E-05"
+        iyz="-2.46531490447298E-20"
+        izz="0.000144317547995641" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint4"
+    type="revolute">
+    <origin
+      xyz="-0.0346410161513776 -0.0200000000000001 0"
+      rpy="0 0 2.09439510239319" />
+    <parent
+      link="Rankle_Link3" />
+    <child
+      link="Rankle_Link4" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Rankle_Link00">
+    <inertial>
+      <origin
+        xyz="0.016832694677439 -0.02046994704488 0.00396741163444414"
+        rpy="0 0 0" />
+      <mass
+        value="0.18428359031599" />
+      <inertia
+        ixx="0.000117881352090235"
+        ixy="6.79775348356107E-05"
+        ixz="-1.23961492381618E-20"
+        iyy="9.83454687660769E-05"
+        iyz="-1.12779371794672E-19"
+        izz="0.000200626794325499" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link00.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Birobot2/meshes/Rankle_Link00.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Rankle_Joint00"
+    type="revolute">
+    <origin
+      xyz="-0.0869286426422063 0.157617927560235 -0.00299999999999989"
+      rpy="0 0 -2.63758708122652" />
+    <parent
+      link="Rankle_Link4" />
+    <child
+      link="Rankle_Link00" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+</robot>
