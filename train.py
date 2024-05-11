@@ -15,6 +15,6 @@ import BirobotGym
 
 envs = gym.vector.make("Birobot-v0",num_envs=2)
 envs.reset()
-action = np.array([(0.,0.,0.,1,0.,0.,0.,0.,0.,0.)])
+action = np.array([(0.,0.,0.,1,0.,0.,0.,0.,0.,0.),(0.,0.,0.,1,0.,0.,0.,0.,0.,0.)])
 while True:
     envs.step(actions=action)
