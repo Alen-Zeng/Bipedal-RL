@@ -32,7 +32,7 @@
     <mesh name="Rankle_Link00" file="Rankle_Link00.STL"/>
   </asset>
 
-  <option gravity="0 0 0" />
+  <option gravity="0 0 -1" />
 
   <worldbody>
     <geom name='floor' pos='0 0 0' size='5 5 .125' type='plane' condim='3'/>
@@ -218,17 +218,17 @@
   </equality> -->
 
   <actuator>
-    <motor name="Lhipyaw_Joint" joint="Lhipyaw_Joint"  ctrlrange="-0.5 0.5"/>
-    <motor name="Lhiproll_Joint" joint="Lhiproll_Joint"  ctrlrange="-0.5 0.5"/>
-    <motor name="Lthigh_Joint" joint="Lthigh_Joint"  ctrlrange="-5 5"/>
-    <motor name="Lknee_Joint0" joint="Lknee_Joint0"  ctrlrange="-0.005 0.005"/>
-    <motor name="Lankle_Joint0" joint="Lankle_Joint0"  ctrlrange="-0.0005 0.0005"/>
+    <motor name="Lhipyaw_Joint" joint="Lhipyaw_Joint" ctrllimited="true" ctrlrange="-0.5 0.5"/>
+    <motor name="Lhiproll_Joint" joint="Lhiproll_Joint" ctrllimited="true" ctrlrange="-0.5 0.5"/>
+    <motor name="Lthigh_Joint" joint="Lthigh_Joint" ctrllimited="true" ctrlrange="-5 5"/>
+    <motor name="Lknee_Joint0" joint="Lknee_Joint0" ctrllimited="true" ctrlrange="-0.005 0.005"/>
+    <motor name="Lankle_Joint0" joint="Lankle_Joint0" ctrllimited="true" ctrlrange="-0.0005 0.0005"/>
 
-    <motor name="Rhipyaw_Joint" joint="Rhipyaw_Joint"  ctrlrange="-0.5 0.5"/>
-    <motor name="Rhiproll_Joint" joint="Rhiproll_Joint"  ctrlrange="-0.5 0.5"/>
-    <motor name="Rthigh_Joint" joint="Rthigh_Joint"  ctrlrange="-5 5"/>
-    <motor name="Rknee_Joint0" joint="Rknee_Joint0"  ctrlrange="-0.5 0.5"/>
-    <motor name="Rankle_Joint0" joint="Rankle_Joint0"  ctrlrange="-0.005 0.005"/>
+    <motor name="Rhipyaw_Joint" joint="Rhipyaw_Joint" ctrllimited="true" ctrlrange="-0.5 0.5"/>
+    <motor name="Rhiproll_Joint" joint="Rhiproll_Joint" ctrllimited="true" ctrlrange="-0.5 0.5"/>
+    <motor name="Rthigh_Joint" joint="Rthigh_Joint" ctrllimited="true" ctrlrange="-5 5"/>
+    <motor name="Rknee_Joint0" joint="Rknee_Joint0" ctrllimited="true" ctrlrange="-0.5 0.5"/>
+    <motor name="Rankle_Joint0" joint="Rankle_Joint0" ctrllimited="true" ctrlrange="-0.005 0.005"/>
 
   </actuator>
 
