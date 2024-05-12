@@ -32,7 +32,7 @@
     <mesh name="Rankle_Link00" file="Rankle_Link00.STL"/>
   </asset>
 
-  <option gravity="0 0 -1" />
+  <option gravity="0 0 -9.8" />
 
   <worldbody>
     <geom name='floor' pos='0 0 0' size='5 5 .125' type='plane' condim='3'/>
