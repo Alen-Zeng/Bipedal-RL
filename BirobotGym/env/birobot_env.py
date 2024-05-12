@@ -83,7 +83,7 @@ class Birobot(MujocoEnv):
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(
-            low=-0, high=0, size=self.model.nq
+            low=-0.3, high=-0.1, size=self.model.nq
         )
         qvel = self.init_qvel + self.np_random.uniform(
             low=-1, high=1, size=self.model.nv
