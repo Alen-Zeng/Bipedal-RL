@@ -35,10 +35,10 @@
   <option gravity="0 0 -9.8" />
 
   <worldbody>
-    <geom name='floor' pos='0 0 0.05' size='5 5 .125' type='plane' condim='3'/>
+    <geom name='floor' pos='0 0 0' size='5 5 .125' type='plane' condim='3'/>
     <light name="spotlight" mode="targetbodycom" target="Lhipyaw_Link" pos="0 -1 2"/>
     
-    <body name="Base_Link" pos="0 0 0.6">
+    <body name="Base_Link" pos="0 0 0.4202">
       <inertial pos="0 0 0.0134214731182759" quat="1 0 0 0" mass="0.258330708046415" diaginertia="0.0003 0.0003 0.0005" />
       <freejoint/>
       <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 0.501961 1" mesh="base_link"/>

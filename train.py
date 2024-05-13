@@ -13,17 +13,15 @@ vec_env = make_vec_env("Birobot-v0",n_envs=1)
 model = PPO("MlpPolicy",vec_env,verbose=1)
 model.learn(total_timesteps=1)
 print("Init model")
-model.save("Birobottest1")
-# del model
-# model = PPO.load("Birobottest1")
+model.save("modelPar/Birobot_epi0")
 print("start training")
 for i in range(episode):
-    model.learn(total_timesteps=10000)
-    model.save("Birobottest1")
     print("episode NO.",i)
-
+    model.learn(total_timesteps=10000)
+    modelname = "modelPar/Birobot_epi"+str(i)
+    model.save(modelname)
 del model
-model = PPO.load("Birobottest1")
+model = PPO.load("Birobottest1",vec_env)
 print("finished training")
 obs = vec_env.reset()
 while True:
