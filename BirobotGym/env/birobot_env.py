@@ -197,7 +197,10 @@ class Birobot(MujocoEnv):
     
     @property
     def healthy_reward(self):
-        return self.is_healthy * self._healthy_reward
+        if(self.is_healthy):
+            return self._healthy_reward
+        else:
+            return -10*self._healthy_reward
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(self.data.ctrl))

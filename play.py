@@ -5,7 +5,7 @@ from stable_baselines3.common.env_util import make_vec_env
 
 vec_env = make_vec_env("Birobot-v0",n_envs=1)
 
-model = PPO.load("modelPar/Birobot_epi10",vec_env)
+model = PPO.load("modelPar/Birobot_epi50",vec_env)
 print("start playing")
 obs = vec_env.reset()
 while True:
