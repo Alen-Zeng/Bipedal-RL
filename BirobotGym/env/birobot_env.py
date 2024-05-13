@@ -13,6 +13,7 @@ DEFAULT_CAMERA_CONFIG = {
     "elevation": -20.0,
 }
 
+count = 0
 
 def mass_center(model, data):
     mass = np.expand_dims(model.body_mass, axis=1)
@@ -29,10 +30,11 @@ class Birobot(MujocoEnv):
                 forward_reward_weight: float = 1.25,
                 ctrl_cost_weight: float = 0.1,
                 contact_cost_weight: float = 5e-6,
+                angular_reward_weight:float = 5e-3,
                 contact_cost_range: Tuple[float, float] = (-np.inf, 10.0),
                 healthy_reward: float = 5.0,
                 terminate_when_unhealthy: bool = True,
-                healthy_z_range: Tuple[float, float] = (0.3, 0.8),
+                healthy_z_range: Tuple[float, float] = (0.4, 0.7),
                 **kwargs,
                  ):
 
@@ -44,6 +46,7 @@ class Birobot(MujocoEnv):
             forward_reward_weight,
             ctrl_cost_weight,
             contact_cost_weight,
+            angular_reward_weight,
             contact_cost_range,
             healthy_reward,
             terminate_when_unhealthy,
@@ -58,6 +61,7 @@ class Birobot(MujocoEnv):
         self._healthy_reward = healthy_reward
         self._terminate_when_unhealthy = terminate_when_unhealthy
         self._healthy_z_range = healthy_z_range
+        self._angular_reward_weight = angular_reward_weight
 
         MujocoEnv.__init__(
             self,
@@ -74,16 +78,18 @@ class Birobot(MujocoEnv):
                 "rgb_array",
                 "depth_array",
             ],
-            "render_fps": int(np.round(1.0 / self.dt)),
+            # "render_fps": int(np.round(1.0 / self.dt)),
+            "render_fps": int(26),
         }
         
-
+        # 可视化
         self.render_mode = "human"
-        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(285,), dtype=np.float64)
+
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(291,), dtype=np.float64)
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(
-            low=-0.3, high=-0.1, size=self.model.nq
+            low=-0.2, high=-0.1, size=self.model.nq
         )
         qvel = self.init_qvel + self.np_random.uniform(
             low=-1, high=1, size=self.model.nv
@@ -102,13 +108,27 @@ class Birobot(MujocoEnv):
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity
 
-        observation = self._get_obs()
-        reward,reward_info = self._get_rew(x_velocity=x_velocity,y_velocity=y_velocity,action=action)
+        angular_vel = self.data.sensordata.flatten()
 
-        terminated = (not self.is_healthy) and self._terminate_when_unhealthy
+        observation = self._get_obs()
+        reward,reward_info = self._get_rew(x_velocity=x_velocity,y_velocity=y_velocity,angular_vel=angular_vel,action=action)
+
+        terminated = (not self.not_healthy_terminated) and self._terminate_when_unhealthy
+
 
         if self.render_mode == "human":
             self.render()
+
+        # print("\033[2J")
+        # print(
+        #     "reward_survive",reward_info["reward_survive"],
+        #     "\nreward_forward",reward_info["reward_forward"],
+        #     "\nreward_ctrl",reward_info["reward_ctrl"],
+        #     "\nreward_contact",reward_info["reward_contact"],
+        #     "\nangular_reward",reward_info["angular_reward"],
+        #     "\naction",action
+        #     )
+        # print("dataofSensors:",self.data.sensordata)
 
         return observation, reward, terminated, False, {}
         # return observation, reward, False, False, {}
@@ -116,18 +136,20 @@ class Birobot(MujocoEnv):
     def _get_obs(self):
         position = self.data.qpos.flatten()
         velocity = self.data.qvel.flatten()
+        angular_vel = self.data.sensordata.flatten()
         com_inertia = self.data.cinert[1:].flatten()
         com_velocity = self.data.cvel[1:].flatten()
         actuator_forces = self.data.qfrc_actuator[6:].flatten()
         external_contact_forces = self.data.cfrc_ext[1:].flatten()
 
-        observation = np.concatenate((position,velocity,com_inertia,com_velocity,actuator_forces,external_contact_forces)).ravel()
+        observation = np.concatenate((position,velocity,angular_vel,com_inertia,com_velocity,actuator_forces,external_contact_forces)).ravel()
         return observation
 
-    def _get_rew(self, x_velocity:float, y_velocity:float,action):
-        forward_reward = self._forward_reward_weight * (x_velocity+y_velocity)
+    def _get_rew(self, x_velocity:float, y_velocity:float,angular_vel,action):
+        forward_reward = -self._forward_reward_weight * (x_velocity+y_velocity)
         healthy_reward = self.healthy_reward
-        rewards = forward_reward + healthy_reward
+        angular_reward = -self._angular_reward_weight *np.sum(self.data.sensordata)
+        rewards = forward_reward + healthy_reward+angular_reward
 
         ctrl_cost = self.control_cost(action)
         contact_cost = self.contact_cost
@@ -140,6 +162,7 @@ class Birobot(MujocoEnv):
             "reward_forward": forward_reward,
             "reward_ctrl": -ctrl_cost,
             "reward_contact": -contact_cost,
+            "angular_reward":angular_reward,
         }
 
         return reward, reward_info
@@ -153,6 +176,17 @@ class Birobot(MujocoEnv):
         is_healthy = min_z < self.data.qpos[2] < max_z
 
         return is_healthy
+    
+    @property        
+    def not_healthy_terminated(self):
+        min_z, max_z = self._healthy_z_range
+        # print(min_z,max_z)
+        min_z -= 0.1
+        max_z += 0.1
+        # print(min_z,max_z)
+        not_healthy_terminated = min_z < self.data.qpos[2] < max_z
+
+        return not_healthy_terminated
     
     @property
     def healthy_reward(self):
