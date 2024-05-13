@@ -32,7 +32,7 @@ class Birobot(MujocoEnv):
                 contact_cost_weight: float = 5e-6,
                 angular_reward_weight:float = 5e-3,
                 contact_cost_range: Tuple[float, float] = (-np.inf, 10.0),
-                healthy_reward: float = 5.0,
+                healthy_reward: float = 2.0,
                 terminate_when_unhealthy: bool = True,
                 healthy_z_range: Tuple[float, float] = (0.3, 0.5),
                 **kwargs,
@@ -83,7 +83,7 @@ class Birobot(MujocoEnv):
         }
         
         # 可视化
-        self.render_mode = "human"
+        self.render_mode = "rgb_array"
 
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(291,), dtype=np.float64)
 
