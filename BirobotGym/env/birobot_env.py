@@ -27,14 +27,14 @@ class Birobot(MujocoEnv):
                 xml_file:str="/home/zxl/Documents/Bipedal-RL/Biroboturdf1.0/Birobot2/urdf/Birobot3.xml",
                 frame_skip:int=5,
                 default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,
-                forward_reward_weight: float = 1.25,
-                ctrl_cost_weight: float = 0.3,
+                forward_reward_weight: float = 2,
+                ctrl_cost_weight: float = 0.5,
                 contact_cost_weight: float = 5e-6,
-                angular_reward_weight:float = 5e-3,
-                contact_cost_range: Tuple[float, float] = (-np.inf, 10.0),
-                healthy_reward: float = 2.0,
+                angular_reward_weight:float = 2e-2,
+                contact_cost_range: Tuple[float, float] = (-np.inf, 5.0),
+                healthy_reward: float = 1.0,
                 terminate_when_unhealthy: bool = True,
-                healthy_z_range: Tuple[float, float] = (0.3, 0.5),
+                healthy_z_range: Tuple[float, float] = (0.3, 0.55),
                 **kwargs,
                  ):
 
@@ -84,6 +84,7 @@ class Birobot(MujocoEnv):
         
         # 可视化
         self.render_mode = "rgb_array"
+        # self.render_mode = "human"
 
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(291,), dtype=np.float64)
 
@@ -101,17 +102,21 @@ class Birobot(MujocoEnv):
         
 
     def step(self, action):
-        xyz_position_before = self.data.xpos[1]
+        xyz_position_before = np.array(self.data.xpos[1])
+        # print("xyz_before",xyz_position_before)
         self.do_simulation(action,self.frame_skip)
-        xyz_position_after = self.data.xpos[1]
+        xyz_position_after = np.array(self.data.xpos[1])
 
         xyz_velocity = (xyz_position_after - xyz_position_before) / self.dt
+        # print("xyz_velocity",xyz_velocity)
         x_velocity = xyz_velocity[0]
         y_velocity = xyz_velocity[1]
         z_velocity = xyz_velocity[2]
+        # print(x_velocity)
 
 
         angular_vel = self.data.sensordata.flatten()
+        angular_vel = np.array([angular_vel[0],angular_vel[1],angular_vel[2]])
 
         observation = self._get_obs()
         reward,reward_info = self._get_rew(x_velocity=x_velocity,y_velocity=y_velocity,z_velocity=z_velocity,angular_vel=angular_vel,action=action)
@@ -150,23 +155,28 @@ class Birobot(MujocoEnv):
 
     def _get_rew(self, x_velocity:float, y_velocity:float,z_velocity:float,angular_vel,action):
         
-        forward_reward = -self._forward_reward_weight * self.data.xpos[1][1]
-
-        xvel_reward = self._forward_reward_weight*(-pow((x_velocity - 1.0),2) + 1)
+        forward_reward = -self._forward_reward_weight * np.square(self.data.xpos[1][1])
+        # print("forward_reward",forward_reward)
+        xvel_reward = 2*self._forward_reward_weight*(-pow((x_velocity - 1.5),2) + 1)
+        # print("xvel_reward",xvel_reward)
         yzvel_reward = -self._forward_reward_weight*0.5*(y_velocity+z_velocity)
+        # print("yzvel_reward",yzvel_reward)
         healthy_reward = self.healthy_reward
-        angular_reward = -self._angular_reward_weight *np.sum(self.data.sensordata[0])
-        rewards = xvel_reward + yzvel_reward + healthy_reward+angular_reward
+        # print("healthy_reward",healthy_reward)
+        angular_reward = -self._angular_reward_weight *np.sum(np.square(angular_vel))
+        # print("angular_reward",angular_reward)
+        rewards = xvel_reward + yzvel_reward + healthy_reward+angular_reward+forward_reward
 
         ctrl_cost = self.control_cost(action)
         contact_cost = self.contact_cost
         costs = ctrl_cost + contact_cost
+        # print("costs",costs)
 
         reward = rewards - costs
 
         reward_info = {
             "reward_survive": healthy_reward,
-            # "reward_forward": forward_reward,
+            "reward_forward": forward_reward,
             "reward_ctrl": -ctrl_cost,
             "reward_contact": -contact_cost,
             "angular_reward":angular_reward,
@@ -200,7 +210,7 @@ class Birobot(MujocoEnv):
         if(self.is_healthy):
             return self._healthy_reward
         else:
-            return -10*self._healthy_reward
+            return -self._healthy_reward
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(self.data.ctrl))

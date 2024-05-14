@@ -39,7 +39,7 @@
     <light name="spotlight" mode="targetbodycom" target="Lhipyaw_Link" pos="0 -1 2"/>
     
     <body name="Base_Link" pos="0 0 0.4202">
-      <inertial pos="0 0 0.0134214731182759" quat="1 0 0 0" mass="0.258330708046415" diaginertia="0.0003 0.0003 0.0005" />
+      <inertial pos="0 0 0.0134214731182759" quat="1 0 0 0" mass="1.258330708046415" diaginertia="0.003 0.003 0.005" />
       <freejoint/>
       <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 0.501961 1" mesh="base_link"/>
       <geom type="mesh" rgba="1 1 0.501961 1" mesh="base_link"/>
@@ -53,7 +53,7 @@
         <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="Lhipyaw_Link"/>
         <body name="Lhiproll_Link" pos="0.0425 0.027 -0.068" quat="0.0 0.707 0.0 0.707">
           <inertial pos="-7.9446e-05 0.0101871 -0.0643986" quat="0.707107 -0.000260404 -0.00106764 0.707106" mass="0.351539" diaginertia="0.000500025 0.000330096 0.000205264"/>
-          <joint name="Lhiproll_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.52 0.52" />
+          <joint name="Lhiproll_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.08 0.08" />
           <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Lhiproll_Link"/>
           <geom type="mesh" rgba="1 1 1 1" mesh="Lhiproll_Link"/>
           <body name="Lthigh_Link" pos="0 -0.000166955 -0.0772201" quat="-0.5 0.5 0.5 0.5">
@@ -125,7 +125,7 @@
         <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="Rhipyaw_Link"/>
         <body name="Rhiproll_Link" pos="0.0425 -0.027 -0.068" quat="0 0.707107 0 0.707107">
           <inertial pos="-7.11487e-05 -0.0101871 -0.0644084" quat="0.707219 -0.00117034 -0.000208746 0.706993" mass="0.351539" diaginertia="0.000500025 0.000330043 0.000205318"/>
-          <joint name="Rhiproll_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.52 0.52" />
+          <joint name="Rhiproll_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.08 0.08" />
           <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Rhiproll_Link"/>
           <geom type="mesh" rgba="1 1 1 1" mesh="Rhiproll_Link"/>
           <body name="Rthigh_Link" pos="0 0.000166955 -0.0772201" quat="0.5 0.5 -0.5 0.5">
@@ -221,13 +221,13 @@
 
   <actuator>
     <motor name="Lhipyaw_Joint" joint="Lhipyaw_Joint" ctrllimited="true" ctrlrange="-1 1" gear="8" />
-    <motor name="Lhiproll_Joint" joint="Lhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" gear="8" />
+    <motor name="Lhiproll_Joint" joint="Lhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" gear="7" />
     <motor name="Lthigh_Joint" joint="Lthigh_Joint" ctrllimited="true" ctrlrange="-1 1" gear="8" />
     <motor name="Lknee_Joint0" joint="Lknee_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="5" />
     <motor name="Lankle_Joint0" joint="Lankle_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="2" />
 
     <motor name="Rhipyaw_Joint" joint="Rhipyaw_Joint" ctrllimited="true" ctrlrange="-1 1" gear="8" />
-    <motor name="Rhiproll_Joint" joint="Rhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" gear="8" />
+    <motor name="Rhiproll_Joint" joint="Rhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" gear="7" />
     <motor name="Rthigh_Joint" joint="Rthigh_Joint" ctrllimited="true" ctrlrange="-1 1" gear="8" />
     <motor name="Rknee_Joint0" joint="Rknee_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="5" />
     <motor name="Rankle_Joint0" joint="Rankle_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="2" />
