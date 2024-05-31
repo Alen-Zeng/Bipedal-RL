@@ -27,6 +27,7 @@ class Birobot(MujocoEnv):
                 xml_file:str="/home/zxl/Documents/Bipedal-RL/Biroboturdf1.0/Birobot2/urdf/Birobot3.xml",
                 frame_skip:int=5,
                 default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,
+                height_reward_weight:float = 0.2,
                 forward_reward_weight: float = 2,
                 ctrl_cost_weight: float = 0.5,
                 contact_cost_weight: float = 5e-6,
@@ -43,6 +44,7 @@ class Birobot(MujocoEnv):
             xml_file,
             frame_skip,
             default_camera_config,
+            height_reward_weight,
             forward_reward_weight,
             ctrl_cost_weight,
             contact_cost_weight,
@@ -54,6 +56,7 @@ class Birobot(MujocoEnv):
             **kwargs
         )
 
+        self._height_reward_weight = height_reward_weight
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
         self._contact_cost_weight = contact_cost_weight
@@ -138,7 +141,7 @@ class Birobot(MujocoEnv):
         #     )
         # print(":::",self.data.xpos[1])
 
-        return observation, reward, terminated, False, {}
+        return observation, reward, terminated, False, reward_info
         # return observation, reward, False, False, {}
 
     def _get_obs(self):
@@ -154,10 +157,43 @@ class Birobot(MujocoEnv):
         return observation
 
     def _get_rew(self, x_velocity:float, y_velocity:float,z_velocity:float,angular_vel,action):
+
+######
+        reward_termination = -200.
+        reward_tracking_lin_vel = 1.0
+        reward_tracking_ang_vel = 1.
+        reward_lin_vel_z = -0.5
+        reward_ang_vel_xy = -0.
+        reward_orientation = -0.
+        reward_torques = -5.e-6
+        reward_dof_vel = -0.
+        reward_dof_acc = -2.e-7
+        reward_base_height = -0. 
+        reward_feet_air_time =  5.
+        reward_collision = -1.
+        reward_feet_stumble = -0.0 
+        reward_action_rate = 0.01
+        reward_stand_still = -0.
+
+        reward_dof_pos_limits = -1.
+        reward_no_fly = 0.25
+        reward_feet_contact_forces = -0.
+######
+
+
+
+
+
+
+
+
+
+
         
+        height_reward = self._height_reward_weight * (-2*pow((self.data.xpos[1][2] - 4.1),2) + 1)
         forward_reward = -self._forward_reward_weight * np.square(self.data.xpos[1][1])
         # print("forward_reward",forward_reward)
-        xvel_reward = 2*self._forward_reward_weight*(-pow((x_velocity - 1.5),2) + 1)
+        xvel_reward = 3*self._forward_reward_weight*(-pow((x_velocity - 1.5),2) + 1)
         # print("xvel_reward",xvel_reward)
         yzvel_reward = -self._forward_reward_weight*0.5*(y_velocity+z_velocity)
         # print("yzvel_reward",yzvel_reward)
@@ -165,7 +201,7 @@ class Birobot(MujocoEnv):
         # print("healthy_reward",healthy_reward)
         angular_reward = -self._angular_reward_weight *np.sum(np.square(angular_vel))
         # print("angular_reward",angular_reward)
-        rewards = xvel_reward + yzvel_reward + healthy_reward+angular_reward+forward_reward
+        rewards = xvel_reward + yzvel_reward + healthy_reward+angular_reward+forward_reward+height_reward
 
         ctrl_cost = self.control_cost(action)
         contact_cost = self.contact_cost
@@ -175,11 +211,15 @@ class Birobot(MujocoEnv):
         reward = rewards - costs
 
         reward_info = {
-            "reward_survive": healthy_reward,
-            "reward_forward": forward_reward,
+            "height_reward": height_reward,
+            "forward_reward": forward_reward,
+            "xvel_reward": xvel_reward,
+            "yzvel_reward": yzvel_reward,
+            "healthy_reward": healthy_reward,
+            "angular_reward": angular_reward,
             "reward_ctrl": -ctrl_cost,
             "reward_contact": -contact_cost,
-            "angular_reward":angular_reward,
+            "reward":reward,
         }
 
         return reward, reward_info
