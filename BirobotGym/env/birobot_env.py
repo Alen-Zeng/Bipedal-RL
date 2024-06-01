@@ -27,15 +27,6 @@ class Birobot(MujocoEnv):
                 xml_file:str="/home/zxl/Documents/Bipedal-RL/Biroboturdf1.0/Birobot2/urdf/Birobot3.xml",
                 frame_skip:int=5,
                 default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,
-                # height_reward_weight:float = 0.2,
-                # forward_reward_weight: float = 2,
-                # ctrl_cost_weight: float = 0.5,
-                # contact_cost_weight: float = 5e-6,
-                # angular_reward_weight:float = 2e-2,
-                # contact_cost_range: Tuple[float, float] = (-np.inf, 5.0),
-                # healthy_reward: float = 1.0,
-                # terminate_when_unhealthy: bool = True,
-                # healthy_z_range: Tuple[float, float] = (0.3, 0.55),
                 **kwargs,
                  ):
 
@@ -48,19 +39,21 @@ class Birobot(MujocoEnv):
         )
 
         self.healthy_weight = 1.
-        self.healthy_z_range = (0.3, 0.55)
+        self.healthy_z_range = (0.35, 0.55)
         self.height_reward_weight = 1.
-        self.tracking_lin_vel_weight = 1.
+        self.tracking_lin_vel_weight = 2.
         self.lin_vel_yz_weight = -1.
-        self.angular_vel_reward_weight = -1.
+        self.angular_vel_reward_weight = -3e-1
         self.no_fly_weight = 1.
-        self.ctrl_cost_weight = -1.
-        self.collision_weight = -1.
-        self.feet_air_time_weight = 1.
-        self.joint_acc_weight=-1.
+        self.ctrl_cost_weight = -2e-1
+        self.collision_weight = -5e-8
+        self.feet_air_time_weight = 4.
+        self.joint_acc_weight=-1e-7
 
 
-        self.feet_air_time = 0.
+        self.Lfeet_air_time = 0.
+        self.Rfeet_air_time = 0.
+        self.reward_healthy = 0
 
 
         MujocoEnv.__init__(
@@ -84,7 +77,7 @@ class Birobot(MujocoEnv):
         
         # 可视化
         self.render_mode = "rgb_array"
-        self.render_mode = "human"
+        # self.render_mode = "human"
 
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(311,), dtype=np.float64)
 
@@ -124,7 +117,7 @@ class Birobot(MujocoEnv):
         if self.render_mode == "human":
             self.render()
 
-        # print("\033[2J")
+        # print("reward info:",reward_info)
 
         return observation, reward, terminated, False, reward_info
         # return observation, reward, False, False, {}
@@ -150,26 +143,38 @@ class Birobot(MujocoEnv):
         # reward_feet_contact_forces = -0.
         # reward_action_rate = self.get_joint_vel()
 ######*******
-
-        reward_healthy = self.get_healthy_reward  # 保持不瘫倒的奖励
+        
+        self.reward_healthy = self.get_healthy_reward  # 保持不瘫倒的奖励
         reward_termination = 0. #终端被重置的惩罚
         if not self.not_healthy_terminated:
             reward_termination = -200.
-        reward_height = self.height_reward_weight * (-2*pow((self.data.xpos[1][2] - 4.1),2) + 1) # 保持一定高度奖励
+        reward_height = self.height_reward_weight * (-pow((self.data.xpos[1][2] - 4.1),2) + 1) # 保持一定高度奖励
         reward_xvel = self.tracking_lin_vel_weight*(-pow((x_velocity - 1.5),2) + 1) # X方向速度奖励
-        reward_yzvel = self.lin_vel_yz_weight*(y_velocity+z_velocity) # 惩罚Y方向和Z方向的速度
+        reward_yzvel = self.lin_vel_yz_weight*np.square(y_velocity+z_velocity) # 惩罚Y方向和Z方向的速度
         reward_angular_vel = self.angular_vel_reward_weight *np.sum(np.square(angular_vel)) # 惩罚躯干的角速度
         reward_no_fly = self.get_if_no_fly*self.no_fly_weight  #没有腾空的奖励
-        reward_control = self.control_cost()    # 惩罚过度控制
+        reward_control = self.control_cost()    # 惩罚过度控制joint_acc_weight
         reward_collision = self.collision_cost  #惩罚过度碰撞
         reward_feet_air_time = self.feet_air_time_weight*(self.get_foot_air_time(id=0)+self.get_foot_air_time(id=1))    #奖励抬腿
         reward_joint_acc = self.joint_acc_weight*np.sum(np.square(self.get_joint_vel()/(self.dt)))  #惩罚关节加速度过大
 
 ######
 
-        reward = reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc
+        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc
 
-        reward_info = {}
+        reward_info = {
+            "reward_healthy":self.reward_healthy,
+            "reward_termination":reward_termination,
+            "reward_height":reward_height,
+            "reward_xvel":reward_xvel,
+            "reward_yzvel":reward_yzvel,
+            "reward_angular_vel":reward_angular_vel,
+            "reward_no_fly":reward_no_fly,
+            "reward_control":reward_control,
+            "reward_collision":reward_collision,
+            "reward_feet_air_time":reward_feet_air_time,
+            "reward_joint_acc":reward_joint_acc,
+        }
 
         return reward, reward_info
 
@@ -220,13 +225,22 @@ class Birobot(MujocoEnv):
             return False
         
     def get_foot_air_time(self,id:int):
-        '''id:0 left foot,1 right foot'''
-        if_contact = self.get_foot_contact_ground(id=id)
-        first_contact = (self.feet_air_time > 0.) * if_contact
-        self.feet_air_time += self.dt
-        rew_airTime = np.sum((self.feet_air_time - 0.5) * first_contact) # reward only on first contact with the ground
-        self.feet_air_time *= ~if_contact
-        return rew_airTime
+        '''id:0 left foot,1 right foot,一个step要调用2次'''
+        if(id == 0):
+            if_contact = self.get_foot_contact_ground(id=id)
+            first_contact = (self.Lfeet_air_time > 0.) * if_contact
+            self.Lfeet_air_time += self.dt
+            rew_airTime = np.sum((self.Lfeet_air_time) * first_contact) # reward only on first contact with the ground
+            self.Lfeet_air_time *= ~if_contact
+            return rew_airTime
+        elif(id == 1):
+            if_contact = self.get_foot_contact_ground(id=id)
+            first_contact = (self.Rfeet_air_time > 0.) * if_contact
+            self.Rfeet_air_time += self.dt
+            rew_airTime = np.sum((self.Rfeet_air_time) * first_contact) # reward only on first contact with the ground
+            self.Rfeet_air_time *= ~if_contact
+            return rew_airTime
+    
 
     def get_joint_pos(self):
         return self.data.sensordata[6:16]

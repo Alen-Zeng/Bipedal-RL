@@ -34,7 +34,7 @@ def make_env(env_id: str, rank: int, seed: int = 0) -> Callable:
 def main():
     episode = 10000
     env_id = "Birobot-v0"
-    num_cpu = 12  # Number of processes to use
+    num_cpu = 16  # Number of processes to use
 
     Bilogger = configure("modelLog/", ["stdout", "csv", "tensorboard"])
 
@@ -52,7 +52,7 @@ def main():
     print("start training")
     for i in range(episode):
         print("episode NO.",i)
-        model.learn(total_timesteps=240000,progress_bar=True)
+        model.learn(total_timesteps=360000,progress_bar=True)
         if(i%5 == 0):
             modelname = "modelPar/Birobot_epi"+str(i)
             model.save(modelname)

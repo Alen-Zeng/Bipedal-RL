@@ -5,28 +5,31 @@ from stable_baselines3.common.env_util import make_vec_env
 
 vec_env = make_vec_env("Birobot-v0",n_envs=1)
 
-model = PPO.load("modelPar/Birobot_epi440",vec_env)
+model = PPO.load("modelPar/Birobot_epi15",vec_env)
 print("start playing")
 obs = vec_env.reset()
 rew = 0
 while True:
     action,_states = model.predict(obs)
     obs,rewards,dones,info = vec_env.step(action)
+    print("reward",rewards)
+    print("info:",
+            "\nreward_healthy",info[0].get("reward_healthy"),
+            "\nreward_termination",info[0].get("reward_termination"),
+            "\nreward_height",info[0].get("reward_height"),
+            "\nreward_xvel",info[0].get("reward_xvel"),
+            "\nreward_yzvel",info[0].get("reward_yzvel"),
+            "\nreward_angular_vel",info[0].get("reward_angular_vel"),
+            "\nreward_no_fly",info[0].get("reward_no_fly"),
+            "\nreward_control",info[0].get("reward_control"),
+            "\nreward_collision",info[0].get("reward_collision"),
+            "\nreward_feet_air_time",info[0].get("reward_feet_air_time"),
+            "\nreward_joint_acc",info[0].get("reward_joint_acc"),)
+    print("=====================================================")
     
     if(dones):
-        print("\033[2J")
-        print("reward info:",
-              "\nheight_reward:",info[0].get("height_reward"),
-              "\nforward_reward:",info[0].get("forward_reward"),
-              "\nxvel_reward:",info[0].get("xvel_reward"),
-              "\nyzvel_reward:",info[0].get("yzvel_reward"),
-              "\nhealthy_reward:",info[0].get("healthy_reward"),
-              "\nangular_reward:",info[0].get("angular_reward"),
-              "\nreward_ctrl:",info[0].get("reward_ctrl"),
-              "\nreward_contact:",info[0].get("reward_contact"),
-              "\nreward:",info[0].get("reward"),
-              )
-        rew = 0
+        # print("\033[2J")
+        pass
     else:
         rew += rewards
 
