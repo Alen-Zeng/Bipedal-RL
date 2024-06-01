@@ -54,11 +54,14 @@ class Birobot(MujocoEnv):
         self.lin_vel_yz_weight = -1.
         self.angular_vel_reward_weight = -1.
         self.no_fly_weight = 1.
-        # self.forward_reward_weight = 
-        # self.ctrl_cost_weight = 
-        # self.contact_cost_weight = 
-        # self.contact_cost_range = 
-        # self.terminate_when_unhealthy = 
+        self.ctrl_cost_weight = -1.
+        self.collision_weight = -1.
+        self.feet_air_time_weight = 1.
+        self.joint_acc_weight=-1.
+
+
+        self.feet_air_time = 0.
+
 
         MujocoEnv.__init__(
             self,
@@ -83,7 +86,7 @@ class Birobot(MujocoEnv):
         self.render_mode = "rgb_array"
         self.render_mode = "human"
 
-        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(291,), dtype=np.float64)
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(311,), dtype=np.float64)
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(
@@ -122,21 +125,6 @@ class Birobot(MujocoEnv):
             self.render()
 
         # print("\033[2J")
-        # print(
-        #     "reward_survive",reward_info["reward_survive"],
-        #     "\nreward_forward",reward_info["reward_forward"],
-        #     "\nreward_ctrl",reward_info["reward_ctrl"],
-        #     "\nreward_contact",reward_info["reward_contact"],
-        #     "\nangular_reward",reward_info["angular_reward"],
-        #     "\naction",action
-        #     )
-        # print(":::",self.data.xpos[1])
-        # print("geom1",self.data.contact.geom1)
-        # print("geom2",self.data.contact.geom2)
-        # print("cfrc_ext",self.data.cfrc_ext[6])
-        # print("cfrc_ext",self.data.cfrc_ext[11])
-        # print("no fly:",self.get_if_no_fly)
-        # print("=====================")
 
         return observation, reward, terminated, False, reward_info
         # return observation, reward, False, False, {}
@@ -156,15 +144,11 @@ class Birobot(MujocoEnv):
     def _get_rew(self, x_velocity:float, y_velocity:float,z_velocity:float,angular_vel,action):
 
 ######
-        reward_tracking_ang_vel = 1.
-        reward_torques = -5.e-6
-        reward_dof_vel = -0.
-        reward_dof_acc = -2.e-7
-        reward_feet_air_time =  5.
-        reward_collision = -1.
-        reward_action_rate = 0.01
-        reward_dof_pos_limits = -1.
-        reward_feet_contact_forces = -0.
+        # reward_tracking_ang_vel = 1.
+        # reward_dof_vel = -0.
+        # reward_dof_pos_limits = -1.
+        # reward_feet_contact_forces = -0.
+        # reward_action_rate = self.get_joint_vel()
 ######*******
 
         reward_healthy = self.get_healthy_reward  # 保持不瘫倒的奖励
@@ -176,43 +160,16 @@ class Birobot(MujocoEnv):
         reward_yzvel = self.lin_vel_yz_weight*(y_velocity+z_velocity) # 惩罚Y方向和Z方向的速度
         reward_angular_vel = self.angular_vel_reward_weight *np.sum(np.square(angular_vel)) # 惩罚躯干的角速度
         reward_no_fly = self.get_if_no_fly*self.no_fly_weight  #没有腾空的奖励
-
-        
-
+        reward_control = self.control_cost()    # 惩罚过度控制
+        reward_collision = self.collision_cost  #惩罚过度碰撞
+        reward_feet_air_time = self.feet_air_time_weight*(self.get_foot_air_time(id=0)+self.get_foot_air_time(id=1))    #奖励抬腿
+        reward_joint_acc = self.joint_acc_weight*np.sum(np.square(self.get_joint_vel()/(self.dt)))  #惩罚关节加速度过大
 
 ######
 
+        reward = reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc
 
-
-
-
-
-        
-        # forward_reward = -self._forward_reward_weight * np.square(self.data.xpos[1][1])
-
-        # healthy_reward = self.healthy_reward
-        # print("angular_reward",angular_reward)
-        # rewards = xvel_reward + yzvel_reward + healthy_reward+angular_reward+forward_reward+height_reward
-        reward = 0
-
-        # ctrl_cost = self.control_cost(action)
-        # contact_cost = self.contact_cost
-        # costs = ctrl_cost + contact_cost
-        # print("costs",costs)
-
-        # reward = rewards - costs
-
-        reward_info = {
-            # "height_reward": height_reward,
-            # "forward_reward": forward_reward,
-            # "xvel_reward": xvel_reward,
-            # "yzvel_reward": yzvel_reward,
-            # "healthy_reward": healthy_reward,
-            # "angular_reward": angular_reward,
-            # "reward_ctrl": -ctrl_cost,
-            # "reward_contact": -contact_cost,
-            # "reward":reward,
-        }
+        reward_info = {}
 
         return reward, reward_info
 
@@ -261,17 +218,31 @@ class Birobot(MujocoEnv):
             return True
         else:
             return False
+        
+    def get_foot_air_time(self,id:int):
+        '''id:0 left foot,1 right foot'''
+        if_contact = self.get_foot_contact_ground(id=id)
+        first_contact = (self.feet_air_time > 0.) * if_contact
+        self.feet_air_time += self.dt
+        rew_airTime = np.sum((self.feet_air_time - 0.5) * first_contact) # reward only on first contact with the ground
+        self.feet_air_time *= ~if_contact
+        return rew_airTime
 
-
-    # def control_cost(self, action):
-    #     control_cost = self._ctrl_cost_weight * np.sum(np.square(self.data.ctrl))
-    #     return control_cost
+    def get_joint_pos(self):
+        return self.data.sensordata[6:16]
     
-    # @property
-    # def contact_cost(self):
-    #     contact_forces = self.data.cfrc_ext
-    #     contact_cost = self._contact_cost_weight * np.sum(np.square(contact_forces))
-    #     min_cost, max_cost = self._contact_cost_range
-    #     contact_cost = np.clip(contact_cost, min_cost, max_cost)
-    #     return contact_cost
+    def get_joint_vel(self):
+        return self.data.sensordata[16:]
+
+    def control_cost(self):
+        control_cost = self.ctrl_cost_weight * np.sum(np.square(self.data.ctrl))
+        return control_cost
+    
+    @property
+    def collision_cost(self):
+        collision_forces = self.data.cfrc_ext
+        collision_cost = self.collision_weight * np.sum(np.square(collision_forces))
+        min_cost, max_cost = (-np.inf, 10.0)
+        collision_cost = np.clip(collision_cost, min_cost, max_cost)
+        return collision_cost
     

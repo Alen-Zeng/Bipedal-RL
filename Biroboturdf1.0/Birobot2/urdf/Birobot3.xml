@@ -237,6 +237,32 @@
   <sensor>
     <gyro name="angular-velocity" site="imu" noise="5e-4" cutoff="34.9"/>
     <accelerometer name="linear-acceleration" site="imu" noise="1e-2" cutoff="157"/>
+
+    <actuatorpos name="PosSensor_Lhipyaw_Joint" actuator="Lhipyaw_Joint" user="16" />
+    <actuatorpos name="PosSensor_Lhiproll_Joint" actuator="Lhiproll_Joint" user="16" />
+    <actuatorpos name="PosSensor_Lthigh_Joint" actuator="Lthigh_Joint" user="16" />
+    <actuatorpos name="PosSensor_Lknee_Joint0" actuator="Lknee_Joint0" user="16" />
+    <actuatorpos name="PosSensor_Lankle_Joint0" actuator="Lankle_Joint0" user="16" />
+
+    <actuatorpos name="PosSensor_Rhipyaw_Joint" actuator="Rhipyaw_Joint" user="16" />
+    <actuatorpos name="PosSensor_Rhiproll_Joint" actuator="Rhiproll_Joint" user="16" />
+    <actuatorpos name="PosSensor_Rthigh_Joint" actuator="Rthigh_Joint" user="16" />
+    <actuatorpos name="PosSensor_Rknee_Joint0" actuator="Rknee_Joint0" user="16" />
+    <actuatorpos name="PosSensor_Rankle_Joint0" actuator="Rankle_Joint0" user="16" />
+
+
+
+    <actuatorvel name="VelSensor_Lhipyaw_Joint" actuator="Lhipyaw_Joint" user="16" />
+    <actuatorvel name="VelSensor_Lhiproll_Joint" actuator="Lhiproll_Joint" user="16" />
+    <actuatorvel name="VelSensor_Lthigh_Joint" actuator="Lthigh_Joint" user="16" />
+    <actuatorvel name="VelSensor_Lknee_Joint0" actuator="Lknee_Joint0" user="16" />
+    <actuatorvel name="VelSensor_Lankle_Joint0" actuator="Lankle_Joint0" user="16" />
+
+    <actuatorvel name="VelSensor_Rhipyaw_Joint" actuator="Rhipyaw_Joint" user="16" />
+    <actuatorvel name="VelSensor_Rhiproll_Joint" actuator="Rhiproll_Joint" user="16" />
+    <actuatorvel name="VelSensor_Rthigh_Joint" actuator="Rthigh_Joint" user="16" />
+    <actuatorvel name="VelSensor_Rknee_Joint0" actuator="Rknee_Joint0" user="16" />
+    <actuatorvel name="VelSensor_Rankle_Joint0" actuator="Rankle_Joint0" user="16" />
   </sensor>
 
 </mujoco>
