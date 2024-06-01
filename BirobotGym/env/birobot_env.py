@@ -77,7 +77,7 @@ class Birobot(MujocoEnv):
         
         # 可视化
         self.render_mode = "rgb_array"
-        # self.render_mode = "human"
+        self.render_mode = "human"
 
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(311,), dtype=np.float64)
 
@@ -148,7 +148,7 @@ class Birobot(MujocoEnv):
         reward_termination = 0. #终端被重置的惩罚
         if not self.not_healthy_terminated:
             reward_termination = -200.
-        reward_height = self.height_reward_weight * (-pow((self.data.xpos[1][2] - 4.1),2) + 1) # 保持一定高度奖励
+        reward_height = self.height_reward_weight * (-120*pow((self.data.xpos[1][2] - 0.41),2) + 1) # 保持一定高度奖励
         reward_xvel = self.tracking_lin_vel_weight*(-pow((x_velocity - 1.5),2) + 1) # X方向速度奖励
         reward_yzvel = self.lin_vel_yz_weight*np.square(y_velocity+z_velocity) # 惩罚Y方向和Z方向的速度
         reward_angular_vel = self.angular_vel_reward_weight *np.sum(np.square(angular_vel)) # 惩罚躯干的角速度
