@@ -49,11 +49,19 @@ class Birobot(MujocoEnv):
         self.collision_weight = -5e-8
         self.feet_air_time_weight = 10.
         self.joint_acc_weight=-1e-7
+        self.foot_parallel_ground_weight = 1.
 
 
         self.Lfeet_air_time = 0.
         self.Rfeet_air_time = 0.
         self.reward_healthy = 0
+
+        self.L_foot_parallel_mat = np.array([0.707,0.707,0,
+                                             0,0,1,
+                                             0.707,-0.707,0])
+        self.R_foot_parallel_mat = np.array([0.707,-0.707,0,
+                                             0,0,-1,
+                                             0.707,0.707,0])
 
 
         MujocoEnv.__init__(
@@ -157,10 +165,11 @@ class Birobot(MujocoEnv):
         reward_collision = self.collision_cost  #惩罚过度碰撞
         reward_feet_air_time = self.feet_air_time_weight*(self.get_foot_air_time(id=0)+self.get_foot_air_time(id=1))    #奖励抬腿
         reward_joint_acc = self.joint_acc_weight*np.sum(np.square(self.get_joint_vel()/(self.dt)))  #惩罚关节加速度过大
+        reward_foot_parallel_ground = -self.foot_parallel_ground_weight*np.sum(np.square(np.append(np.array(self.data.xmat[6]-self.L_foot_parallel_mat),np.array(self.data.xmat[11]-self.R_foot_parallel_mat))))+2*self.foot_parallel_ground_weight
 
 ######
 
-        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc
+        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc+reward_foot_parallel_ground
 
         reward_info = {
             "reward_healthy":self.reward_healthy,
@@ -174,6 +183,7 @@ class Birobot(MujocoEnv):
             "reward_collision":reward_collision,
             "reward_feet_air_time":reward_feet_air_time,
             "reward_joint_acc":reward_joint_acc,
+            "reward_foot_parallel_ground":reward_foot_parallel_ground,
         }
 
         return reward, reward_info
