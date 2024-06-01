@@ -34,31 +34,50 @@ def make_env(env_id: str, rank: int, seed: int = 0) -> Callable:
 def main():
     episode = 10000
     env_id = "Birobot-v0"
-    num_cpu = 16  # Number of processes to use
+    num_cpu = 20  # Number of processes to use
+    start_epi = 12 #从某个模型继续训练
+    save_pause = 3 #间隔多少个episode保存一次
 
     Bilogger = configure("modelLog/", ["stdout", "csv", "tensorboard"])
 
     # Create the vectorized environment
     vec_env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
 
+    if(start_epi == 0):
+        model = PPO("MlpPolicy",vec_env,verbose=1)
+        model.set_logger(Bilogger)
+        model.learn(total_timesteps=1,log_interval=3)
+        print("Init model")
+        model.save("modelPar/Birobot_epi0")
+        print("start training")
+        for i in range(episode):
+            print("episode NO.",i)
+            model.learn(total_timesteps=360000,progress_bar=True)
+            if(i%save_pause == 0):
+                modelname = "modelPar/Birobot_epi"+str(i)
+                model.save(modelname)
+            elif(i == episode-1):
+                modelname = "modelPar/Birobot_epi"+str(i)
+                model.save(modelname)
+        del model
+    else:
+        modelname = "modelPar/Birobot_epi"+str(start_epi)
+        model = PPO.load(modelname,vec_env)
+        model.set_logger(Bilogger)
+        for i in range(start_epi+1,episode):
+            print("episode NO.",i)
+            model.learn(total_timesteps=360000,progress_bar=True)
+            if(i%save_pause == 0):
+                modelname = "modelPar/Birobot_epi"+str(i)
+                model.save(modelname)
+            elif(i == episode-1):
+                modelname = "modelPar/Birobot_epi"+str(i)
+                model.save(modelname)
+        del model
 
-    # vec_env = make_vec_env("Birobot-v0",n_envs=5)
 
-    model = PPO("MlpPolicy",vec_env,verbose=1)
-    model.set_logger(Bilogger)
-    model.learn(total_timesteps=1,log_interval=3)
-    print("Init model")
-    model.save("modelPar/Birobot_epi0")
-    print("start training")
-    for i in range(episode):
-        print("episode NO.",i)
-        model.learn(total_timesteps=360000,progress_bar=True)
-        if(i%5 == 0):
-            modelname = "modelPar/Birobot_epi"+str(i)
-            model.save(modelname)
-
-    del model
-    model = PPO.load("Birobottest1",vec_env)
+    modelname = "modelPar/Birobot_epi"+str(episode-1)
+    model = PPO.load(modelname,vec_env)
     print("finished training")
     obs = vec_env.reset()
     while True:

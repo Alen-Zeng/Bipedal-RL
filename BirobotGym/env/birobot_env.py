@@ -47,7 +47,7 @@ class Birobot(MujocoEnv):
         self.no_fly_weight = 1.
         self.ctrl_cost_weight = -2e-1
         self.collision_weight = -5e-8
-        self.feet_air_time_weight = 4.
+        self.feet_air_time_weight = 10.
         self.joint_acc_weight=-1e-7
 
 
@@ -77,7 +77,7 @@ class Birobot(MujocoEnv):
         
         # 可视化
         self.render_mode = "rgb_array"
-        self.render_mode = "human"
+        # self.render_mode = "human"
 
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(311,), dtype=np.float64)
 
