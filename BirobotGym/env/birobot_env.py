@@ -41,15 +41,16 @@ class Birobot(MujocoEnv):
         self.healthy_weight = 1.
         self.healthy_z_range = (0.35, 0.55)
         self.height_reward_weight = 1.
-        self.tracking_lin_vel_weight = 2.
+        self.tracking_lin_vel_weight = 4.
         self.lin_vel_yz_weight = -1.
         self.angular_vel_reward_weight = -3e-1
         self.no_fly_weight = 1.
         self.ctrl_cost_weight = -2e-1
         self.collision_weight = -5e-8
-        self.feet_air_time_weight = 10.
-        self.joint_acc_weight=-1e-7
+        self.feet_air_time_weight = 6.
+        self.joint_acc_weight=-2e-7
         self.foot_parallel_ground_weight = 1.
+        self.base_parallel_ground_weight = 1.
 
 
         self.Lfeet_air_time = 0.
@@ -62,6 +63,9 @@ class Birobot(MujocoEnv):
         self.R_foot_parallel_mat = np.array([0.707,-0.707,0,
                                              0,0,-1,
                                              0.707,0.707,0])
+        self.base_parallel_ground_mat = np.array([1.,0.,0.,
+                                                  0.,1.,0.,
+                                                  0.,0.,1.])
 
 
         MujocoEnv.__init__(
@@ -85,7 +89,7 @@ class Birobot(MujocoEnv):
         
         # 可视化
         self.render_mode = "rgb_array"
-        # self.render_mode = "human"
+        self.render_mode = "human"
 
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(311,), dtype=np.float64)
 
@@ -165,11 +169,14 @@ class Birobot(MujocoEnv):
         reward_collision = self.collision_cost  #惩罚过度碰撞
         reward_feet_air_time = self.feet_air_time_weight*(self.get_foot_air_time(id=0)+self.get_foot_air_time(id=1))    #奖励抬腿
         reward_joint_acc = self.joint_acc_weight*np.sum(np.square(self.get_joint_vel()/(self.dt)))  #惩罚关节加速度过大
-        reward_foot_parallel_ground = -self.foot_parallel_ground_weight*np.sum(np.square(np.append(np.array(self.data.xmat[6]-self.L_foot_parallel_mat),np.array(self.data.xmat[11]-self.R_foot_parallel_mat))))+2*self.foot_parallel_ground_weight
+        # 奖励足部和地面平行
+        reward_foot_parallel_ground = -2*self.foot_parallel_ground_weight*np.sum(np.square(np.append(np.array(self.data.xmat[6])-self.L_foot_parallel_mat,np.array(self.data.xmat[11]-self.R_foot_parallel_mat))))+2*self.foot_parallel_ground_weight
+        # 奖励身体和地面平行
+        reward_base_parallel_ground = -2*self.base_parallel_ground_weight*np.sum(np.square(np.array(self.data.xmat[1])-self.base_parallel_ground_mat))+2*self.base_parallel_ground_weight
 
 ######
 
-        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc+reward_foot_parallel_ground
+        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc+reward_foot_parallel_ground+reward_base_parallel_ground
 
         reward_info = {
             "reward_healthy":self.reward_healthy,
@@ -184,6 +191,7 @@ class Birobot(MujocoEnv):
             "reward_feet_air_time":reward_feet_air_time,
             "reward_joint_acc":reward_joint_acc,
             "reward_foot_parallel_ground":reward_foot_parallel_ground,
+            "reward_base_parallel_ground":reward_base_parallel_ground,
         }
 
         return reward, reward_info
