@@ -39,6 +39,8 @@ class Birobot(MujocoEnv):
             **kwargs
         )
 
+        self.last_action = np.zeros(10)
+
         self.healthy_weight = 1.
         self.healthy_z_range = (0.35, 0.55)
         self.height_reward_weight = 1.5
@@ -114,6 +116,10 @@ class Birobot(MujocoEnv):
         
 
     def step(self, action):
+        #低通滤波
+        action[:] = 0.8*action[:]+0.2*self.last_action[:]
+        self.last_action = action
+
         xyz_position_before = np.array(self.data.xpos[1])
         self.do_simulation(action,self.frame_skip)
         xyz_position_after = np.array(self.data.xpos[1])
