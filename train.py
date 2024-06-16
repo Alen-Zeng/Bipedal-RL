@@ -35,8 +35,9 @@ def main():
     episode = 10000
     env_id = "Birobot-v0"
     num_cpu = 20  # Number of processes to use
-    start_epi = 12 #从某个模型继续训练
+    start_epi = 975 #从某个模型继续训练
     save_pause = 3 #间隔多少个episode保存一次
+    total_timesteps = 720000
 
     Bilogger = configure("modelLog/", ["stdout", "csv", "tensorboard"])
 
@@ -52,7 +53,7 @@ def main():
         print("start training")
         for i in range(episode):
             print("episode NO.",i)
-            model.learn(total_timesteps=360000,progress_bar=True)
+            model.learn(total_timesteps=total_timesteps,progress_bar=True)
             if(i%save_pause == 0):
                 modelname = "modelPar/Birobot_epi"+str(i)
                 model.save(modelname)
@@ -66,7 +67,7 @@ def main():
         model.set_logger(Bilogger)
         for i in range(start_epi+1,episode):
             print("episode NO.",i)
-            model.learn(total_timesteps=360000,progress_bar=True)
+            model.learn(total_timesteps=total_timesteps,progress_bar=True)
             if(i%save_pause == 0):
                 modelname = "modelPar/Birobot_epi"+str(i)
                 model.save(modelname)
