@@ -4,8 +4,9 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 
 vec_env = make_vec_env("Birobot-v0",n_envs=1)
-
-model = PPO.load("modelPar/Birobot_epi15",vec_env)
+modelnum = 1245
+modelname = "modelPar/Birobot_epi"+str(modelnum)
+model = PPO.load(modelname,vec_env)
 print("start playing")
 obs = vec_env.reset()
 rew = 0
@@ -24,7 +25,11 @@ while True:
             "\nreward_control",info[0].get("reward_control"),
             "\nreward_collision",info[0].get("reward_collision"),
             "\nreward_feet_air_time",info[0].get("reward_feet_air_time"),
-            "\nreward_joint_acc",info[0].get("reward_joint_acc"),)
+            "\nreward_joint_acc",info[0].get("reward_joint_acc"),
+            "\nreward_foot_parallel_ground",info[0].get("reward_foot_parallel_ground"),
+            "\nreward_base_parallel_ground",info[0].get("reward_base_parallel_ground"),
+            "\nreward_foot_step",info[0].get("reward_foot_step"),
+            )
     print("=====================================================")
     
     if(dones):
