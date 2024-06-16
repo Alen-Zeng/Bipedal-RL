@@ -6,6 +6,7 @@ from gymnasium.utils import EzPickle
 from gymnasium.envs.mujoco import MujocoEnv
 from stable_baselines3 import A2C
 
+
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
     "distance": 4.0,
@@ -40,17 +41,23 @@ class Birobot(MujocoEnv):
 
         self.healthy_weight = 1.
         self.healthy_z_range = (0.35, 0.55)
-        self.height_reward_weight = 1.
-        self.tracking_lin_vel_weight = 4.
+        self.height_reward_weight = 1.5
+        self.tracking_lin_vel_weight = 1.5
         self.lin_vel_yz_weight = -1.
-        self.angular_vel_reward_weight = -3e-1
+        self.angular_vel_reward_weight = -2.
         self.no_fly_weight = 1.
         self.ctrl_cost_weight = -2e-1
         self.collision_weight = -5e-8
-        self.feet_air_time_weight = 6.
+        self.feet_air_time_weight = 8.
         self.joint_acc_weight=-2e-7
         self.foot_parallel_ground_weight = 1.
         self.base_parallel_ground_weight = 1.
+        self.foot_step_weight = 1.
+
+        # T, h, delta_h  https://www.mdpi.com/2076-3417/14/5/1803
+        self.footstep_T = 0.8
+        self.footstep_h = 0.3
+        self.footstep_delta_h = 0.16
 
 
         self.Lfeet_air_time = 0.
@@ -116,20 +123,23 @@ class Birobot(MujocoEnv):
         y_velocity = xyz_velocity[1]
         z_velocity = xyz_velocity[2]
 
+        leftfoot_ref_height = self.zt_ref_left(self.data.time,self.footstep_T,self.footstep_h,self.footstep_delta_h)
+        rightfoot_ref_height = self.zt_ref_right(self.data.time,self.footstep_T,self.footstep_h,self.footstep_delta_h)
 
         angular_vel = self.data.sensordata.flatten()
         angular_vel = np.array([angular_vel[0],angular_vel[1],angular_vel[2]])
 
         observation = self._get_obs()
-        reward,reward_info = self._get_rew(x_velocity=x_velocity,y_velocity=y_velocity,z_velocity=z_velocity,angular_vel=angular_vel,action=action)
+        reward,reward_info = self._get_rew(x_velocity=x_velocity,y_velocity=y_velocity,z_velocity=z_velocity,angular_vel=angular_vel,leftfoot_ref_height=leftfoot_ref_height,rightfoot_ref_height=rightfoot_ref_height,action=action)
 
         terminated = (not self.not_healthy_terminated)
+
+        # print("left foot xyz",self.data.xpos[6])
+        # print("right foot xyz",self.data.xpos[11])
 
 
         if self.render_mode == "human":
             self.render()
-
-        # print("reward info:",reward_info)
 
         return observation, reward, terminated, False, reward_info
         # return observation, reward, False, False, {}
@@ -146,7 +156,7 @@ class Birobot(MujocoEnv):
         observation = np.concatenate((position,velocity,angular_vel,com_inertia,com_velocity,actuator_forces,external_contact_forces)).ravel()
         return observation
 
-    def _get_rew(self, x_velocity:float, y_velocity:float,z_velocity:float,angular_vel,action):
+    def _get_rew(self, x_velocity:float, y_velocity:float,z_velocity:float,angular_vel,leftfoot_ref_height:float,rightfoot_ref_height:float,action):
 
 ######
         # reward_tracking_ang_vel = 1.
@@ -159,24 +169,26 @@ class Birobot(MujocoEnv):
         self.reward_healthy = self.get_healthy_reward  # 保持不瘫倒的奖励
         reward_termination = 0. #终端被重置的惩罚
         if not self.not_healthy_terminated:
-            reward_termination = -200.
-        reward_height = self.height_reward_weight * (-120*pow((self.data.xpos[1][2] - 0.41),2) + 1) # 保持一定高度奖励
-        reward_xvel = self.tracking_lin_vel_weight*(-pow((x_velocity - 1.5),2) + 1) # X方向速度奖励
-        reward_yzvel = self.lin_vel_yz_weight*np.square(y_velocity+z_velocity) # 惩罚Y方向和Z方向的速度
-        reward_angular_vel = self.angular_vel_reward_weight *np.sum(np.square(angular_vel)) # 惩罚躯干的角速度
+            reward_termination = -100.
+        reward_height = self.height_reward_weight * math.exp(-10*pow((self.data.xpos[1][2] - 0.39),2)) # 保持一定高度奖励
+        reward_xvel = self.tracking_lin_vel_weight*math.exp(-10*pow((x_velocity - 0.7),2)) # X方向速度奖励
+        reward_yzvel = -self.lin_vel_yz_weight*math.exp(-np.square(y_velocity+z_velocity)) # 惩罚Y方向和Z方向的速度
+        reward_angular_vel = -self.angular_vel_reward_weight *math.exp(-np.sum(np.square(angular_vel))) # 惩罚躯干的角速度
         reward_no_fly = self.get_if_no_fly*self.no_fly_weight  #没有腾空的奖励
         reward_control = self.control_cost()    # 惩罚过度控制joint_acc_weight
         reward_collision = self.collision_cost  #惩罚过度碰撞
         reward_feet_air_time = self.feet_air_time_weight*(self.get_foot_air_time(id=0)+self.get_foot_air_time(id=1))    #奖励抬腿
         reward_joint_acc = self.joint_acc_weight*np.sum(np.square(self.get_joint_vel()/(self.dt)))  #惩罚关节加速度过大
         # 奖励足部和地面平行
-        reward_foot_parallel_ground = -2*self.foot_parallel_ground_weight*np.sum(np.square(np.append(np.array(self.data.xmat[6])-self.L_foot_parallel_mat,np.array(self.data.xmat[11]-self.R_foot_parallel_mat))))+2*self.foot_parallel_ground_weight
+        reward_foot_parallel_ground = self.foot_parallel_ground_weight*math.exp(-np.sum(np.square(np.append(np.array(self.data.xmat[6])-self.L_foot_parallel_mat,np.array(self.data.xmat[11]-self.R_foot_parallel_mat)))))
         # 奖励身体和地面平行
-        reward_base_parallel_ground = -2*self.base_parallel_ground_weight*np.sum(np.square(np.array(self.data.xmat[1])-self.base_parallel_ground_mat))+2*self.base_parallel_ground_weight
+        reward_base_parallel_ground = self.base_parallel_ground_weight*math.exp(-np.sum(np.square(np.array(self.data.xmat[1])-self.base_parallel_ground_mat)))
+        # 奖励脚步交替踏步动作
+        reward_foot_step = self.foot_step_weight*math.exp(-50*(pow((self.data.xpos[6][2]-leftfoot_ref_height),2)+pow((self.data.xpos[11][2]-rightfoot_ref_height),2)))
 
 ######
 
-        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc+reward_foot_parallel_ground+reward_base_parallel_ground
+        reward = self.reward_healthy+reward_termination+reward_height+reward_xvel+reward_yzvel+reward_angular_vel+reward_no_fly+reward_control+reward_collision+reward_feet_air_time+reward_joint_acc+reward_foot_parallel_ground+reward_base_parallel_ground+reward_foot_step
 
         reward_info = {
             "reward_healthy":self.reward_healthy,
@@ -192,6 +204,7 @@ class Birobot(MujocoEnv):
             "reward_joint_acc":reward_joint_acc,
             "reward_foot_parallel_ground":reward_foot_parallel_ground,
             "reward_base_parallel_ground":reward_base_parallel_ground,
+            "reward_foot_step":reward_foot_step,
         }
 
         return reward, reward_info
@@ -220,14 +233,14 @@ class Birobot(MujocoEnv):
         if(self.is_healthy):
             return self.healthy_weight
         else:
-            return -self.healthy_weight
+            return -2*self.healthy_weight
               
     def get_foot_contact_ground(self,id:int):
         '''id:0 left foot(6),1 right foot(11)'''
         if(id == 0):
-            return (self.data.cfrc_ext[6][5]>2)   # 左脚的Z方向受力（世界坐标系）
+            return (self.data.cfrc_ext[6][5]>5)   # 左脚的Z方向受力（世界坐标系）
         elif(id == 1):
-            return (self.data.cfrc_ext[11][5]>2)    # 右脚的Z方向受力（世界坐标系）
+            return (self.data.cfrc_ext[11][5]>5)    # 右脚的Z方向受力（世界坐标系）
         else:
             return False
         
@@ -278,3 +291,10 @@ class Birobot(MujocoEnv):
         collision_cost = np.clip(collision_cost, min_cost, max_cost)
         return collision_cost
     
+    def zt_ref_left(self,t, T, h, delta_h):
+        '''左脚高度reference  https://www.mdpi.com/2076-3417/14/5/1803'''
+        return max(0, h * math.sin(2 * math.pi * (t / T)) - delta_h)
+
+    def zt_ref_right(self,t, T, h, delta_h):
+        '''右脚高度reference  https://www.mdpi.com/2076-3417/14/5/1803'''
+        return max(0, h * math.sin(2 * math.pi * (t / T) + math.pi) - delta_h)
