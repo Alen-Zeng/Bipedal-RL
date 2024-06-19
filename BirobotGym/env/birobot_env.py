@@ -140,9 +140,6 @@ class Birobot(MujocoEnv):
 
         terminated = (not self.not_healthy_terminated)
 
-        # print("left foot xyz",self.data.xpos[6])
-        # print("right foot xyz",self.data.xpos[11])
-
 
         if self.render_mode == "human":
             self.render()

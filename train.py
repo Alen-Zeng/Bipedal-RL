@@ -34,8 +34,8 @@ def make_env(env_id: str, rank: int, seed: int = 0) -> Callable:
 def main():
     episode = 10000
     env_id = "Birobot-v0"
-    num_cpu = 20  # Number of processes to use
-    start_epi = 975 #从某个模型继续训练
+    num_cpu = 22  # Number of processes to use
+    start_epi = 21 #从某个模型继续训练
     save_pause = 3 #间隔多少个episode保存一次
     total_timesteps = 720000
 
