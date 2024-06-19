@@ -6,7 +6,9 @@ from gymnasium.utils import EzPickle
 from gymnasium.envs.mujoco import MujocoEnv
 from stable_baselines3 import A2C
 from Algorithm.PID.PID import DualLoopPID
+from Algorithm.INV.INV import Leg_INV
 import plotly.graph_objects as go
+
 
 
 DEFAULT_CAMERA_CONFIG = {
@@ -122,10 +124,20 @@ class Birobot(MujocoEnv):
         
 
     def step(self, action):
+        #imitation 逆解算
+        leftfoot_ref_height = self.zt_ref_left(self.data.time,self.footstep_T,self.footstep_h,self.footstep_delta_h)
+        rightfoot_ref_height = self.zt_ref_right(self.data.time,self.footstep_T,self.footstep_h,self.footstep_delta_h)
+        Ltheta1,Ltheta2,Ltheta3,Rtheta1,Rtheta2,Rtheta3 = self.leg_inv(leftfoot_ref_height,rightfoot_ref_height)
+        actionINV = np.zeros_like(action)
+        actionINV[2],actionINV[3],actionINV[4],actionINV[7],actionINV[8],actionINV[9] = Ltheta1,Ltheta2,Ltheta3,Rtheta1,Rtheta2,Rtheta3
         #低通滤波
         action[:] = 0.9*action[:]+0.1*self.last_action[:]
-        action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
         self.last_action = action
+        # RL补充的位置范围
+        actionRL = np.full(len(action),1.) * action
+        action[:] = actionRL[:] + actionINV[:]
+        print("len:",len(action))
+        action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
 
         #调PID test
         # indexjoint = 5
@@ -158,8 +170,6 @@ class Birobot(MujocoEnv):
         y_velocity = xyz_velocity[1]
         z_velocity = xyz_velocity[2]
 
-        leftfoot_ref_height = self.zt_ref_left(self.data.time,self.footstep_T,self.footstep_h,self.footstep_delta_h)
-        rightfoot_ref_height = self.zt_ref_right(self.data.time,self.footstep_T,self.footstep_h,self.footstep_delta_h)
 
         angular_vel = self.data.sensordata.flatten()
         angular_vel = np.array([angular_vel[0],angular_vel[1],angular_vel[2]])
@@ -355,3 +365,11 @@ class Birobot(MujocoEnv):
         # 输出归一化
         torque_output = torque_output / max_output_vel
         return torque_output
+    
+    def leg_inv(self,LH,RH):
+        leg_inv = Leg_INV()
+        theta1,theta2,theta3 = leg_inv.inv_leg(H=LH)
+        Ltheta1,Ltheta2,Ltheta3 = theta1,-theta2,-theta3
+        theta1,theta2,theta3 = leg_inv.inv_leg(H=RH)
+        Rtheta1,Rtheta2,Rtheta3 = -theta1,theta2,theta3
+        return Ltheta1,Ltheta2,Ltheta3,Rtheta1,Rtheta2,Rtheta3
