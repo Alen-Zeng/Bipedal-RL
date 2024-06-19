@@ -5,6 +5,7 @@ from gymnasium.spaces import Box
 from gymnasium.utils import EzPickle
 from gymnasium.envs.mujoco import MujocoEnv
 from stable_baselines3 import A2C
+from Algorithm.PID.PID import DualLoopPID
 
 
 DEFAULT_CAMERA_CONFIG = {
@@ -116,6 +117,8 @@ class Birobot(MujocoEnv):
         
 
     def step(self, action):
+        # action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
+
         #低通滤波
         action[:] = 0.8*action[:]+0.2*self.last_action[:]
         self.last_action = action
@@ -301,3 +304,18 @@ class Birobot(MujocoEnv):
     def zt_ref_right(self,t, T, h, delta_h):
         '''右脚高度reference  https://www.mdpi.com/2076-3417/14/5/1803'''
         return max(0, h * math.sin(2 * math.pi * (t / T) + math.pi) - delta_h)
+
+    def joint_control(self,position_setpoint,position_feedback,velocity_feedback):
+        num_motors = 10
+        kp_pos = np.ones(num_motors) * 6
+        ki_pos = np.ones(num_motors) * 0.01
+        kd_pos = np.ones(num_motors) * 0.05
+        kp_vel = np.ones(num_motors) * 1
+        ki_vel = np.ones(num_motors) * 0.
+        kd_vel = np.ones(num_motors) * 0.
+        integrator_threshold_pos = np.ones(num_motors) * 10.
+        integrator_threshold_vel = np.ones(num_motors) * 1.
+        pid_controller = DualLoopPID(kp_pos, ki_pos, kd_pos, kp_vel, ki_vel, kd_vel,
+                             integrator_threshold_pos, integrator_threshold_vel)
+        torque_output = pid_controller.control(position_setpoint, position_feedback, velocity_feedback)
+        return torque_output
