@@ -38,7 +38,7 @@
     <geom name='floor' pos='0 0 0' size='5 5 .125' type='plane' condim='3'/>
     <light name="spotlight" mode="targetbodycom" target="Lhipyaw_Link" pos="0 -1 2"/>
     
-    <body name="Base_Link" pos="0 0 0.4202">
+    <body name="Base_Link" pos="0 0 0.4208">
       <inertial pos="0 0 0.0134214731182759" quat="1 0 0 0" mass="1.258330708046415" diaginertia="0.003 0.003 0.005" />
       <freejoint/>
       <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 0.501961 1" mesh="base_link"/>
@@ -220,17 +220,17 @@
   </equality> -->
 
   <actuator>
-    <position name="Lhipyaw_Joint" joint="Lhipyaw_Joint" ctrllimited="true" ctrlrange="-1.57 1.57" kp="6" kv="0.021" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Lhiproll_Joint" joint="Lhiproll_Joint" ctrllimited="true" ctrlrange="-1.57 1.57" kp="6" kv="0.021" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Lthigh_Joint" joint="Lthigh_Joint" ctrllimited="true" ctrlrange="-1.57 1.57" kp="6" kv="0.021" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Lknee_Joint0" joint="Lknee_Joint0" ctrllimited="true" ctrlrange="-1.57 1.57" kp="3" kv="0.015" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Lankle_Joint0" joint="Lankle_Joint0" ctrllimited="true" ctrlrange="-1.57 1.57" kp="3" kv="0.018" gear="3" forcelimited="true" forcerange="-20 20" />
+    <position name="Lhipyaw_Joint" joint="Lhipyaw_Joint" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.021" gear="5" forcelimited="true" forcerange="-20 20" />
+    <position name="Lhiproll_Joint" joint="Lhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.021" gear="9.375" forcelimited="true" forcerange="-20 20" />
+    <position name="Lthigh_Joint" joint="Lthigh_Joint" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.021" gear="1.875" forcelimited="true" forcerange="-20 20" />
+    <position name="Lknee_Joint0" joint="Lknee_Joint0" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.05" gear="2.2" forcelimited="true" forcerange="-20 20" />
+    <position name="Lankle_Joint0" joint="Lankle_Joint0" ctrllimited="true" ctrlrange="-1 1" kp="3" kv="0.018" gear="1.76" forcelimited="true" forcerange="-20 20" />
 
-    <position name="Rhipyaw_Joint" joint="Rhipyaw_Joint" ctrllimited="true" ctrlrange="-1.57 1.57" kp="6" kv="0.021" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Rhiproll_Joint" joint="Rhiproll_Joint" ctrllimited="true" ctrlrange="-1.57 1.57" kp="6" kv="0.021" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Rthigh_Joint" joint="Rthigh_Joint" ctrllimited="true" ctrlrange="-1.57 1.57" kp="6" kv="0.021" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Rknee_Joint0" joint="Rknee_Joint0" ctrllimited="true" ctrlrange="-1.57 1.57" kp="3" kv="0.015" gear="6" forcelimited="true" forcerange="-20 20" />
-    <position name="Rankle_Joint0" joint="Rankle_Joint0" ctrllimited="true" ctrlrange="-1.57 1.57" kp="3" kv="0.018" gear="3" forcelimited="true" forcerange="-20 20" />
+    <position name="Rhipyaw_Joint" joint="Rhipyaw_Joint" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.021" gear="5" forcelimited="true" forcerange="-20 20" />
+    <position name="Rhiproll_Joint" joint="Rhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.021" gear="9.375" forcelimited="true" forcerange="-20 20" />
+    <position name="Rthigh_Joint" joint="Rthigh_Joint" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.021" gear="1.875" forcelimited="true" forcerange="-20 20" />
+    <position name="Rknee_Joint0" joint="Rknee_Joint0" ctrllimited="true" ctrlrange="-1 1" kp="8" kv="0.05" gear="2.2" forcelimited="true" forcerange="-20 20" />
+    <position name="Rankle_Joint0" joint="Rankle_Joint0" ctrllimited="true" ctrlrange="-1 1" kp="3" kv="0.018" gear="1.76" forcelimited="true" forcerange="-20 20" />
 
   </actuator>
 
