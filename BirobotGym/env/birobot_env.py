@@ -63,7 +63,7 @@ class Birobot(MujocoEnv):
         # T, h, delta_h  https://www.mdpi.com/2076-3417/14/5/1803
         self.footstep_T = 0.8
         self.footstep_h = 0.3
-        self.footstep_delta_h = 0.16
+        self.footstep_delta_h = 0.12
 
         #调PID test
         # self.ankle = []
@@ -149,34 +149,33 @@ class Birobot(MujocoEnv):
         action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
 
         # 画出高度图和抬腿图
-        self.timearr.append(self.data.time)
-        self.LH.append(leftfoot_ref_height)
-        self.RH.append(rightfoot_ref_height)
-        self.Ltheta1.append(Ltheta1)
-        self.Ltheta2.append(Ltheta2)
-        self.Ltheta3.append(Ltheta3)
-        self.Rtheta1.append(Rtheta1)
-        self.Rtheta2.append(Rtheta2)
-        self.Rtheta3.append(Rtheta3)
-        if(20.01 > self.data.time > 20. ):
-            fig = go.Figure()        
-            # 添加数据到曲线图
-            fig.add_trace(go.Scatter(x=self.timearr, y=self.ankle, mode='lines', name='timearr'))
-            fig.add_trace(go.Scatter(x=self.LH, y=self.ankle, mode='lines', name='LH'))
-            fig.add_trace(go.Scatter(x=self.RH, y=self.ankle, mode='lines', name='RH'))
-            fig.add_trace(go.Scatter(x=self.Ltheta1, y=self.ankle, mode='lines', name='Ltheta1'))
-            fig.add_trace(go.Scatter(x=self.Ltheta2, y=self.ankle, mode='lines', name='Ltheta2'))
-            fig.add_trace(go.Scatter(x=self.Ltheta3, y=self.ankle, mode='lines', name='Ltheta3'))
-            fig.add_trace(go.Scatter(x=self.Rtheta1, y=self.ankle, mode='lines', name='Rtheta1'))
-            fig.add_trace(go.Scatter(x=self.Rtheta2, y=self.ankle, mode='lines', name='Rtheta2'))
-            fig.add_trace(go.Scatter(x=self.Rtheta3, y=self.ankle, mode='lines', name='Rtheta3'))
-            # 设置图表标题和标签
-            fig.update_layout(
-                title='joint_leg',
-                xaxis_title='时间 (s)',
-                yaxis_title='值'
-            )
-            fig.show()
+        # self.timearr.append(self.data.time)
+        # self.LH.append(leftfoot_ref_height)
+        # self.RH.append(rightfoot_ref_height)
+        # self.Ltheta1.append(Ltheta1)
+        # self.Ltheta2.append(Ltheta2)
+        # self.Ltheta3.append(Ltheta3)
+        # self.Rtheta1.append(Rtheta1)
+        # self.Rtheta2.append(Rtheta2)
+        # self.Rtheta3.append(Rtheta3)
+        # if(20.01 > self.data.time > 20. ):
+        #     fig = go.Figure()        
+        #     # 添加数据到曲线图
+        #     fig.add_trace(go.Scatter(y=self.LH, x=self.timearr, mode='lines', name='LH'))
+        #     fig.add_trace(go.Scatter(y=self.RH, x=self.timearr, mode='lines', name='RH'))
+        #     fig.add_trace(go.Scatter(y=self.Ltheta1, x=self.timearr, mode='lines', name='Ltheta1'))
+        #     fig.add_trace(go.Scatter(y=self.Ltheta2, x=self.timearr, mode='lines', name='Ltheta2'))
+        #     fig.add_trace(go.Scatter(y=self.Ltheta3, x=self.timearr, mode='lines', name='Ltheta3'))
+        #     fig.add_trace(go.Scatter(y=self.Rtheta1, x=self.timearr, mode='lines', name='Rtheta1'))
+        #     fig.add_trace(go.Scatter(y=self.Rtheta2, x=self.timearr, mode='lines', name='Rtheta2'))
+        #     fig.add_trace(go.Scatter(y=self.Rtheta3, x=self.timearr, mode='lines', name='Rtheta3'))
+        #     # 设置图表标题和标签
+        #     fig.update_layout(
+        #         title='joint_leg',
+        #         xaxis_title='时间 (s)',
+        #         yaxis_title='值'
+        #     )
+        #     fig.show()
 
         #调PID test
         # indexjoint = 5
@@ -222,8 +221,8 @@ class Birobot(MujocoEnv):
         if self.render_mode == "human":
             self.render()
 
-        return observation, reward, terminated, False, reward_info
-        # return observation, reward, False, False, reward_info
+        # return observation, reward, terminated, False, reward_info
+        return observation, reward, False, False, reward_info
 
     def _get_obs(self):
         position = self.data.qpos.flatten()
