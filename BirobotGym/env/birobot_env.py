@@ -6,6 +6,7 @@ from gymnasium.utils import EzPickle
 from gymnasium.envs.mujoco import MujocoEnv
 from stable_baselines3 import A2C
 from Algorithm.PID.PID import DualLoopPID
+import plotly.graph_objects as go
 
 
 DEFAULT_CAMERA_CONFIG = {
@@ -62,6 +63,10 @@ class Birobot(MujocoEnv):
         self.footstep_h = 0.3
         self.footstep_delta_h = 0.16
 
+        #调PID test
+        # self.ankle = []
+        # self.timearr = []
+
 
         self.Lfeet_air_time = 0.
         self.Rfeet_air_time = 0.
@@ -117,11 +122,32 @@ class Birobot(MujocoEnv):
         
 
     def step(self, action):
-        # action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
-
         #低通滤波
-        action[:] = 0.8*action[:]+0.2*self.last_action[:]
+        action[:] = 0.9*action[:]+0.1*self.last_action[:]
+        action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
         self.last_action = action
+
+        #调PID test
+        # indexjoint = 5
+        # action = np.zeros(10)*0.
+        # if(self.data.time >= 1.5):
+        #     action[indexjoint] = 4.
+        # action = self.joint_control(action,self.get_joint_pos(),self.get_joint_vel())
+        # self.ankle.append(self.get_joint_pos()[indexjoint])
+        # self.timearr.append(self.data.time)
+        # if(8.01 > self.data.time > 8. ):
+        #     fig = go.Figure()
+        #     # 添加数据到曲线图
+        #     fig.add_trace(go.Scatter(x=self.timearr, y=self.ankle, mode='lines', name='Example Curve'))
+        #     # 设置图表标题和标签
+        #     fig.update_layout(
+        #         title='PID',
+        #         xaxis_title='时间 (s)',
+        #         yaxis_title='值'
+        #     )
+        #     # 显示图表
+        #     fig.show()
+
 
         xyz_position_before = np.array(self.data.xpos[1])
         self.do_simulation(action,self.frame_skip)
@@ -148,7 +174,7 @@ class Birobot(MujocoEnv):
             self.render()
 
         return observation, reward, terminated, False, reward_info
-        # return observation, reward, False, False, {}
+        # return observation, reward, False, False, reward_info
 
     def _get_obs(self):
         position = self.data.qpos.flatten()
@@ -164,7 +190,7 @@ class Birobot(MujocoEnv):
 
     def _get_rew(self, x_velocity:float, y_velocity:float,z_velocity:float,angular_vel,leftfoot_ref_height:float,rightfoot_ref_height:float,action):
 
-######
+###### 一些没用到的reward
         # reward_tracking_ang_vel = 1.
         # reward_dof_vel = -0.
         # reward_dof_pos_limits = -1.
@@ -211,6 +237,7 @@ class Birobot(MujocoEnv):
             "reward_foot_parallel_ground":reward_foot_parallel_ground,
             "reward_base_parallel_ground":reward_base_parallel_ground,
             "reward_foot_step":reward_foot_step,
+            "time":self.data.time,
         }
 
         return reward, reward_info
@@ -307,15 +334,24 @@ class Birobot(MujocoEnv):
 
     def joint_control(self,position_setpoint,position_feedback,velocity_feedback):
         num_motors = 10
-        kp_pos = np.ones(num_motors) * 6
-        ki_pos = np.ones(num_motors) * 0.01
-        kd_pos = np.ones(num_motors) * 0.05
-        kp_vel = np.ones(num_motors) * 1
+        kp_pos = np.array([15.,5.,48.,12.,22.,
+                           15.,5.,48.,12.,22.])
+        ki_pos = np.array([0.,0.,0.2,0.,0.,
+                           0.,0.,0.2,0.,0.])
+        kd_pos = np.array([0.08,0.2,0.05,0.05,0.,
+                           0.08,0.2,0.05,0.05,0.])
+        kp_vel = np.array([1.5,1.,3.,2.,1.,
+                           1.5,1.,3.,2.,1.])
         ki_vel = np.ones(num_motors) * 0.
         kd_vel = np.ones(num_motors) * 0.
+        max_output_pos = np.ones(num_motors) * 1000.
+        max_output_vel = np.ones(num_motors) * 1000.
         integrator_threshold_pos = np.ones(num_motors) * 10.
         integrator_threshold_vel = np.ones(num_motors) * 1.
         pid_controller = DualLoopPID(kp_pos, ki_pos, kd_pos, kp_vel, ki_vel, kd_vel,
-                             integrator_threshold_pos, integrator_threshold_vel)
+                             integrator_threshold_pos, integrator_threshold_vel,
+                             max_output_pos, max_output_vel)
         torque_output = pid_controller.control(position_setpoint, position_feedback, velocity_feedback)
+        # 输出归一化
+        torque_output = torque_output / max_output_vel
         return torque_output

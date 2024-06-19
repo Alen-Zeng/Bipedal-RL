@@ -1,7 +1,7 @@
 import numpy as np
 
 class DualLoopPID:
-    def __init__(self, kp_pos, ki_pos, kd_pos, kp_vel, ki_vel, kd_vel, integrator_threshold_pos, integrator_threshold_vel):
+    def __init__(self, kp_pos, ki_pos, kd_pos, kp_vel, ki_vel, kd_vel, integrator_threshold_pos, integrator_threshold_vel, max_output_pos, max_output_vel):
         # 外环（位置环）的PID参数
         self.kp_pos = np.array(kp_pos)
         self.ki_pos = np.array(ki_pos)
@@ -23,6 +23,10 @@ class DualLoopPID:
         # 积分分离阈值
         self.integrator_threshold_pos = integrator_threshold_pos
         self.integrator_threshold_vel = integrator_threshold_vel
+        
+        # 最大输出限制
+        self.max_output_pos = max_output_pos
+        self.max_output_vel = max_output_vel
 
     def position_control(self, position_setpoint, position_feedback):
         # 位置环的误差计算
@@ -40,6 +44,9 @@ class DualLoopPID:
         velocity_setpoint = (self.kp_pos * error_pos +
                              self.ki_pos * self.integral_pos +
                              self.kd_pos * derivative_pos)
+        
+        # 限制输出
+        velocity_setpoint = np.clip(velocity_setpoint, -self.max_output_pos, self.max_output_pos)
         
         # 更新前一误差
         self.prev_error_pos = error_pos
@@ -62,6 +69,9 @@ class DualLoopPID:
         torque_output = (self.kp_vel * error_vel +
                          self.ki_vel * self.integral_vel +
                          self.kd_vel * derivative_vel)
+        
+        # 限制输出
+        torque_output = np.clip(torque_output, -self.max_output_vel, self.max_output_vel)
         
         # 更新前一误差
         self.prev_error_vel = error_vel
