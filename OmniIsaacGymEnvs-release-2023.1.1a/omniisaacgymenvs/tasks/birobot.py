@@ -28,10 +28,23 @@ class BirobotTask(RLTask):
         self._birobot_translation = torch.tensor([0.0 , 0.0 , 0.4208])
 
     def set_up_scene(self, scene) -> None:
-        pass# TODO
+        self.get_birobot()
+        super().set_up_scene(scene)
+        self._birobot = ArticulationView(
+            prim_paths_expr = "/World/envs/.*/Birobot3/Base_Link/Base_Link",name="birobotview", reset_xform_properties=False
+        )# TODO 正则表达式是怎么确定的
+        scene.add(self._birobot)
 
-    
-    def get_anymal(self):
+    def initialize_views(self, scene):
+        super().initialize_views(scene)
+        if scene.object_exists("birobotview"):
+            scene.remove_object("birobotview", registry_only=True)
+        self._birobot = ArticulationView(
+            prim_paths_expr = "/World/envs/.*/Birobot3/Base_Link/Base_Link",name="birobotview", reset_xform_properties=False
+        )
+        scene.add(self._birobot)
+
+    def get_birobot(self):
         birobot = Birobot(
             prim_path=self.default_zero_env_path + "/Birobotisaac",name="Birobot",translation=self._birobot_translation
             )
@@ -40,3 +53,41 @@ class BirobotTask(RLTask):
         )
 
         # TODO 在这里使用set_drive 配置机器人关节驱动的参数
+
+    def get_observations(self) -> dict:
+        pass
+        # TODO 配置获取相关的observation
+        
+        # self.obs_buf = 
+
+    def pre_physics_step(self, actions) -> None:
+        if not self.world.is_playing():
+            return
+        
+        reset_env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)
+        if len(reset_env_ids) > 0:
+            self.reset_idx(reset_env_ids)
+
+    def reset_idx(self, env_ids):
+        num_resets = len(env_ids)
+        
+        #TODO 配置环境的复位
+
+
+
+        self.reset_buf[env_ids] = 0
+        self.progress_buf[env_ids] = 0
+
+    def post_reset(self):
+        # TODO 还不知道这个函数有什么用
+        pass
+
+    def calculate_metrics(self) -> None:
+        # TODO 各种参数的计算、REWARD的计算
+        pass
+        # self.rew_buf[:] = 
+
+    def is_done(self) -> None:
+        # reset agents
+        time_out = self.progress_buf >= self.max_episode_length - 1
+        self.reset_buf[:] = time_out  # TODO 配置其他可能得reset标志位
