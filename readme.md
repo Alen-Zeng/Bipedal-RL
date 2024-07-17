@@ -1,0 +1,1 @@
+使用Isaac Sim仿真平台，配合OmniIsaacGymEnvs（2023.1.1a）进行双足强化学习训练和仿真。
