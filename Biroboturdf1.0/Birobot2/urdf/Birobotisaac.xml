@@ -1,0 +1,161 @@
+<mujoco model="Birobot3">
+  <compiler angle="radian" meshdir="../meshes/"/>
+  <asset>
+    <mesh name="base_link" file="base_link.STL"/>
+    <mesh name="Lhipyaw_Link" file="Lhipyaw_Link.STL"/>
+    <mesh name="Lhiproll_Link" file="Lhiproll_Link.STL"/>
+    <mesh name="Lthigh_Link" file="Lthigh_Link.STL"/>
+    <mesh name="Lknee_Link0" file="Lknee_Link0.STL"/>
+    <mesh name="Lankle_Link0" file="Lankle_Link0.STL"/>
+    <mesh name="Lknee_Link1" file="Lknee_Link1.STL"/>
+    <mesh name="Lknee_Link2" file="Lknee_Link2.STL"/>
+    <mesh name="Lknee_Link00" file="Lknee_Link00.STL"/>
+    <mesh name="Lankle_Link34" file="Lankle_Link34.STL"/>
+    <mesh name="Lankle_Link1" file="Lankle_Link1.STL"/>
+    <mesh name="Lankle_Link2" file="Lankle_Link2.STL"/>
+    <mesh name="Lankle_Link3" file="Lankle_Link3.STL"/>
+    <mesh name="Lankle_Link4" file="Lankle_Link4.STL"/>
+    <mesh name="Lankle_Link00" file="Lankle_Link00.STL"/>
+    <mesh name="Rhipyaw_Link" file="Rhipyaw_Link.STL"/>
+    <mesh name="Rhiproll_Link" file="Rhiproll_Link.STL"/>
+    <mesh name="Rthigh_Link" file="Rthigh_Link.STL"/>
+    <mesh name="Rknee_Link0" file="Rknee_Link0.STL"/>
+    <mesh name="Rankle_Link0" file="Rankle_Link0.STL"/>
+    <mesh name="Rknee_Link1" file="Rknee_Link1.STL"/>
+    <mesh name="Rknee_Link2" file="Rknee_Link2.STL"/>
+    <mesh name="Rknee_Link00" file="Rknee_Link00.STL"/>
+    <mesh name="Rankle_Link34" file="Rankle_Link34.STL"/>
+    <mesh name="Rankle_Link1" file="Rankle_Link1.STL"/>
+    <mesh name="Rankle_Link2" file="Rankle_Link2.STL"/>
+    <mesh name="Rankle_Link3" file="Rankle_Link3.STL"/>
+    <mesh name="Rankle_Link4" file="Rankle_Link4.STL"/>
+    <mesh name="Rankle_Link00" file="Rankle_Link00.STL"/>
+  </asset>
+
+  <option gravity="0 0 -9.8" />
+
+  <worldbody>
+    <!-- <geom name='floor' pos='0 0 0' size='5 5 .125' type='plane' condim='3'/>
+    <light name="spotlight" mode="targetbodycom" target="Lhipyaw_Link" pos="0 -1 2"/> -->
+    
+    <body name="Base_Link" pos="0 0 0.4208">
+      <inertial pos="0 0 0.0134214731182759" quat="1 0 0 0" mass="1.258330708046415" diaginertia="0.003 0.003 0.005" />
+      <freejoint/>
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 0.501961 1" mesh="base_link"/>
+      <geom type="mesh" rgba="1 1 0.501961 1" mesh="base_link"/>
+
+      <site name="imu" size="0.01" pos="0 0 0"/>
+
+      <body name="Lhipyaw_Link" pos="0 0.037 -0.001">
+        <inertial pos="0.04428 0.0202466 -0.0546106" quat="0.967907 0.226251 -0.109245 -0.00563644" mass="0.440039" diaginertia="0.000710794 0.000532864 0.000303795"/>
+        <joint name="Lhipyaw_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.52 0.52" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.898039 0.917647 0.929412 1" mesh="Lhipyaw_Link"/>
+        <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="Lhipyaw_Link"/>
+        <body name="Lhiproll_Link" pos="0.0425 0.027 -0.068" quat="0.0 0.707 0.0 0.707">
+          <inertial pos="-7.9446e-05 0.0101871 -0.0643986" quat="0.707107 -0.000260404 -0.00106764 0.707106" mass="0.351539" diaginertia="0.000500025 0.000330096 0.000205264"/>
+          <joint name="Lhiproll_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.08 0.08" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Lhiproll_Link"/>
+          <geom type="mesh" rgba="1 1 1 1" mesh="Lhiproll_Link"/>
+          <body name="Lthigh_Link" pos="0 -0.000166955 -0.0772201" quat="-0.5 0.5 0.5 0.5">
+            <inertial pos="-0.0313714 -0.0398929 -0.0418667" quat="0.637476 0.306262 -0.637134 0.306412" mass="0.881225" diaginertia="0.00313387 0.00272744 0.000467439"/>
+            <joint name="Lthigh_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-1.2 1.2" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.776471 0.756863 0.737255 1" mesh="Lthigh_Link"/>
+            <geom type="mesh" rgba="0.776471 0.756863 0.737255 1" mesh="Lthigh_Link"/>
+            <body name="Lknee_Link0" pos="-0.135597 -0.170697 -0.0531661" quat="0 0.920345 0.391107 0">
+              <inertial pos="0 0.0913613 -0.0200012" quat="0.499936 0.500064 -0.499936 0.500064" mass="0.223798" diaginertia="0.000645485 0.000632927 1.61549e-05"/>
+              <joint name="Lknee_Joint0" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.8 0.8" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Lknee_Link0"/>
+              <geom type="mesh" rgba="1 1 1 1" mesh="Lknee_Link0"/>
+              <body name="Lankle_Link0" pos="0 0.18 0">
+                <inertial pos="-0.0231596 0.0212536 -0.0200326" quat="0.643213 0.293729 -0.643213 0.293729" mass="0.184284" diaginertia="0.000200627 0.000176789 3.94377e-05"/>
+                <joint name="Lankle_Joint0" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.8 0.8" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.898039 0.917647 0.929412 1" mesh="Lankle_Link0"/>
+                <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="Lankle_Link0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+
+
+      <body name="Rhipyaw_Link" pos="0 -0.037 -0.001">
+        <inertial pos="0.04428 -0.0202555 -0.0546055" quat="0.967871 -0.226422 -0.1092 0.00581149" mass="0.440039" diaginertia="0.000710787 0.000532863 0.000303803"/>
+        <joint name="Rhipyaw_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.52 0.52" />
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.898039 0.917647 0.929412 1" mesh="Rhipyaw_Link"/>
+        <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="Rhipyaw_Link"/>
+        <body name="Rhiproll_Link" pos="0.0425 -0.027 -0.068" quat="0 0.707107 0 0.707107">
+          <inertial pos="-7.11487e-05 -0.0101871 -0.0644084" quat="0.707219 -0.00117034 -0.000208746 0.706993" mass="0.351539" diaginertia="0.000500025 0.000330043 0.000205318"/>
+          <joint name="Rhiproll_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.08 0.08" />
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Rhiproll_Link"/>
+          <geom type="mesh" rgba="1 1 1 1" mesh="Rhiproll_Link"/>
+          <body name="Rthigh_Link" pos="0 0.000166955 -0.0772201" quat="0.5 0.5 -0.5 0.5">
+            <inertial pos="-0.0314575 0.0398845 -0.0418687" quat="0.306421 0.637651 -0.306139 0.637014" mass="0.881225" diaginertia="0.00313387 0.00272835 0.000466527"/>
+            <joint name="Rthigh_Joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-1.2 1.2" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 0.501961 1" mesh="Rthigh_Link"/>
+            <geom type="mesh" rgba="1 1 0.501961 1" mesh="Rthigh_Link"/>
+            <body name="Rknee_Link0" pos="-0.135597 0.170697 -0.0531661" quat="0 -0.920345 0.391107 0">
+              <inertial pos="0 -0.0913613 -0.0200012" quat="0.499936 0.500064 -0.499936 0.500064" mass="0.223798" diaginertia="0.000645485 0.000632927 1.61549e-05"/>
+              <joint name="Rknee_Joint0" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.8 0.8" />
+              <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Rknee_Link0"/>
+              <geom type="mesh" rgba="1 1 1 1" mesh="Rknee_Link0"/>
+              <body name="Rankle_Link0" pos="0 -0.18 0">
+                <inertial pos="-0.0231596 -0.0212536 -0.0200326" quat="0.293729 0.643213 -0.293729 0.643213" mass="0.184284" diaginertia="0.000200627 0.000176789 3.94377e-05"/>
+                <joint name="Rankle_Joint0" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.8 0.8" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.898039 0.917647 0.929412 1" mesh="Rankle_Link0"/>
+                <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="Rankle_Link0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+
+  <!-- <actuator>
+    <motor name="Lhipyaw_Joint" joint="Lhipyaw_Joint" ctrllimited="true" ctrlrange="-1 1" gear="16" />
+    <motor name="Lhiproll_Joint" joint="Lhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" gear="14" />
+    <motor name="Lthigh_Joint" joint="Lthigh_Joint" ctrllimited="true" ctrlrange="-1 1" gear="16" />
+    <motor name="Lknee_Joint0" joint="Lknee_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="10" />
+    <motor name="Lankle_Joint0" joint="Lankle_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="4" />
+
+    <motor name="Rhipyaw_Joint" joint="Rhipyaw_Joint" ctrllimited="true" ctrlrange="-1 1" gear="16" />
+    <motor name="Rhiproll_Joint" joint="Rhiproll_Joint" ctrllimited="true" ctrlrange="-1 1" gear="14" />
+    <motor name="Rthigh_Joint" joint="Rthigh_Joint" ctrllimited="true" ctrlrange="-1 1" gear="16" />
+    <motor name="Rknee_Joint0" joint="Rknee_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="10" />
+    <motor name="Rankle_Joint0" joint="Rankle_Joint0" ctrllimited="true" ctrlrange="-1 1" gear="4" />
+
+  </actuator> -->
+
+  <!-- <sensor>
+    <gyro name="angular-velocity" site="imu" noise="5e-4" cutoff="34.9"/>
+    <accelerometer name="linear-acceleration" site="imu" noise="1e-2" cutoff="157"/>
+
+    <actuatorpos name="PosSensor_Lhipyaw_Joint" actuator="Lhipyaw_Joint" user="16" />
+    <actuatorpos name="PosSensor_Lhiproll_Joint" actuator="Lhiproll_Joint" user="16" />
+    <actuatorpos name="PosSensor_Lthigh_Joint" actuator="Lthigh_Joint" user="16" />
+    <actuatorpos name="PosSensor_Lknee_Joint0" actuator="Lknee_Joint0" user="16" />
+    <actuatorpos name="PosSensor_Lankle_Joint0" actuator="Lankle_Joint0" user="16" />
+
+    <actuatorpos name="PosSensor_Rhipyaw_Joint" actuator="Rhipyaw_Joint" user="16" />
+    <actuatorpos name="PosSensor_Rhiproll_Joint" actuator="Rhiproll_Joint" user="16" />
+    <actuatorpos name="PosSensor_Rthigh_Joint" actuator="Rthigh_Joint" user="16" />
+    <actuatorpos name="PosSensor_Rknee_Joint0" actuator="Rknee_Joint0" user="16" />
+    <actuatorpos name="PosSensor_Rankle_Joint0" actuator="Rankle_Joint0" user="16" />
+
+
+
+    <actuatorvel name="VelSensor_Lhipyaw_Joint" actuator="Lhipyaw_Joint" user="16" />
+    <actuatorvel name="VelSensor_Lhiproll_Joint" actuator="Lhiproll_Joint" user="16" />
+    <actuatorvel name="VelSensor_Lthigh_Joint" actuator="Lthigh_Joint" user="16" />
+    <actuatorvel name="VelSensor_Lknee_Joint0" actuator="Lknee_Joint0" user="16" />
+    <actuatorvel name="VelSensor_Lankle_Joint0" actuator="Lankle_Joint0" user="16" />
+
+    <actuatorvel name="VelSensor_Rhipyaw_Joint" actuator="Rhipyaw_Joint" user="16" />
+    <actuatorvel name="VelSensor_Rhiproll_Joint" actuator="Rhiproll_Joint" user="16" />
+    <actuatorvel name="VelSensor_Rthigh_Joint" actuator="Rthigh_Joint" user="16" />
+    <actuatorvel name="VelSensor_Rknee_Joint0" actuator="Rknee_Joint0" user="16" />
+    <actuatorvel name="VelSensor_Rankle_Joint0" actuator="Rankle_Joint0" user="16" />
+  </sensor> -->
+
+</mujoco>
