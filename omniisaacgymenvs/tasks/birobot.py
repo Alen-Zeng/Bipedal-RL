@@ -13,7 +13,7 @@ class BirobotTask(RLTask):
     def __init__(self, name, sim_config, env, offset=None) -> None:
 
         self.update_config(sim_config)
-        self._num_observations = 10 # TODO 配置真实的大小
+        self._num_observations = 42 
         self._num_actions = 10   # def num_actions(self): return self._num_actions
 
         RLTask.__init__(self, name, env)
@@ -72,7 +72,7 @@ class BirobotTask(RLTask):
 
         self._num_envs = self._task_cfg["env"]["numEnvs"]
         self._env_spacing = self._task_cfg["env"]["envSpacing"]
-        self._birobot_translation = torch.tensor([0.0 , 0.0 , 0.4208])
+        self._birobot_translation = torch.tensor([0.0 , 0.0 , 0.0])
 
 
 
@@ -128,7 +128,7 @@ class BirobotTask(RLTask):
 
         base_lin_vel = quat_rotate_inverse(base_rotation, velocity) * self.lin_vel_scale
         base_ang_vel = quat_rotate_inverse(base_rotation, ang_velocity) * self.ang_vel_scale
-        projected_gravity = quat_rotate(torso_rotation, self.gravity_vec)  # 将重力向量self.gravity_vec从世界坐标系转换到躯干坐标系
+        projected_gravity = quat_rotate(base_rotation, self.gravity_vec)  # 将重力向量self.gravity_vec从世界坐标系转换到躯干坐标系
         dof_pos_scaled = (dof_pos - self.default_dof_pos) * self.dof_pos_scale
         
         commands_scaled = self.commands * torch.tensor(
@@ -165,19 +165,45 @@ class BirobotTask(RLTask):
         self.actions[:] = actions.clone().to(self._device)
         current_targets = self.current_targets + self.action_scale * self.actions * self.dt
         self.current_targets[:] = tensor_clamp(
-            current_targets, self.anymal_dof_lower_limits, self.anymal_dof_upper_limits
+            current_targets, self.birobot_dof_lower_limits, self.birobot_dof_upper_limits
         )
-        self._anymals.set_joint_position_targets(self.current_targets, indices)
+        self._birobot.set_joint_position_targets(self.current_targets, indices)
 
 
     def reset_idx(self, env_ids):
         '''每次仿真的复位'''
         num_resets = len(env_ids)
+        dof_pos = self.default_dof_pos[env_ids]
+        dof_vel = torch_rand_float(-0.1, 0.1, (num_resets, self._birobot.num_dof), device=self._device)
+
+        self.current_targets[env_ids] = dof_pos[:]
+
+        root_vel = torch.zeros((num_resets, 6), device=self._device)
         
-        #TODO 配置环境的复位
+        # apply resets
+        indices = env_ids.to(dtype=torch.int32)
+        self._birobot.set_joint_positions(dof_pos, indices)
+        self._birobot.set_joint_velocities(dof_vel, indices)
+
+        self._birobot.set_world_poses(
+            self.initial_root_pos[env_ids].clone(), self.initial_root_rot[env_ids].clone(), indices
+        )
+        self._birobot.set_velocities(root_vel, indices)
+
+        self.commands_x[env_ids] = torch_rand_float(
+            self.command_x_range[0], self.command_x_range[1], (num_resets, 1), device=self._device
+        ).squeeze()
+        self.commands_y[env_ids] = torch_rand_float(
+            self.command_y_range[0], self.command_y_range[1], (num_resets, 1), device=self._device
+        ).squeeze()
+        self.commands_yaw[env_ids] = torch_rand_float(
+            self.command_yaw_range[0], self.command_yaw_range[1], (num_resets, 1), device=self._device
+        ).squeeze()
 
         self.reset_buf[env_ids] = 0
         self.progress_buf[env_ids] = 0
+        self.last_actions[env_ids] = 0.0
+        self.last_dof_vel[env_ids] = 0.0
 
     def post_reset(self):
         '''初始环境复位，环境启动后配置部分参数，函数只会在仿真前被调用一次'''
@@ -192,12 +218,12 @@ class BirobotTask(RLTask):
             angle = self.named_default_joint_angles[name]
             self.default_dof_pos[:, i] = angle
 
-        self.initial_root_pos, self.initial_root_rot = self._anymals.get_world_poses()
+        self.initial_root_pos, self.initial_root_rot = self._birobot.get_world_poses()
         self.current_targets = self.default_dof_pos.clone()
 
-        dof_limits = self._anymals.get_dof_limits()  # unit: degrees 
-        self.anymal_dof_lower_limits = dof_limits[0, :, 0].to(device=self._device)
-        self.anymal_dof_upper_limits = dof_limits[0, :, 1].to(device=self._device)
+        dof_limits = self._birobot.get_dof_limits()  # unit: degrees 
+        self.birobot_dof_lower_limits = dof_limits[0, :, 0].to(device=self._device)
+        self.birobot_dof_upper_limits = dof_limits[0, :, 1].to(device=self._device)
 
         # init command，控制目标是让机器人保持原地不动？
         self.commands = torch.zeros(self._num_envs, 3, dtype=torch.float, device=self._device, requires_grad=False)
@@ -227,10 +253,51 @@ class BirobotTask(RLTask):
 
     def calculate_metrics(self) -> None:
         # TODO 各种参数的计算、REWARD的计算
-        pass
-        # self.rew_buf[:] = 
+        base_position, base_rotation = self._birobot.get_world_poses(clone=False)
+        root_velocities = self._birobot.get_velocities(clone=False)
+        dof_pos = self._birobot.get_joint_positions(clone=False)
+        dof_vel = self._birobot.get_joint_velocities(clone=False)
+
+        velocity = root_velocities[:, 0:3]
+        ang_velocity = root_velocities[:, 3:6]
+
+        base_lin_vel = quat_rotate_inverse(base_rotation, velocity)
+        base_ang_vel = quat_rotate_inverse(base_rotation, ang_velocity)
+
+        lin_vel_error = torch.sum(torch.square(self.commands[:, :2] - base_lin_vel[:, :2]), dim=1)
+        ang_vel_error = torch.square(self.commands[:, 2] - base_ang_vel[:, 2])
+        rew_lin_vel_xy = torch.exp(-lin_vel_error / 0.25) * self.rew_scales["lin_vel_xy"]
+        rew_ang_vel_z = torch.exp(-ang_vel_error / 0.25) * self.rew_scales["ang_vel_z"]
+
+        rew_lin_vel_z = torch.square(base_lin_vel[:, 2]) * self.rew_scales["lin_vel_z"]
+        rew_joint_acc = torch.sum(torch.square(self.last_dof_vel - dof_vel), dim=1) * self.rew_scales["joint_acc"]
+        rew_action_rate = (
+            torch.sum(torch.square(self.last_actions - self.actions), dim=1) * self.rew_scales["action_rate"]
+        )
+        total_reward = rew_lin_vel_xy + rew_ang_vel_z + rew_joint_acc + rew_action_rate + rew_lin_vel_z
+        total_reward = torch.clip(total_reward, 0.0, None)
+
+        self.fallen_over = self.is_base_below_threshold(threshold=0.39, ground_heights=0.0)
+        # TODO DEBUG
+        # print("fallen over",self.fallen_over)
+
+        total_reward[torch.nonzero(self.fallen_over)] = -1
+        self.rew_buf[:] = total_reward.detach()
+
+        self.last_actions[:] = self.actions[:]
+        self.last_dof_vel[:] = dof_vel[:]
+
+    def is_base_below_threshold(self, threshold, ground_heights):
+        base_position, base_rotation = self._birobot.get_world_poses(clone=False)
+        base_heights = base_position[:, 2]
+        base_heights -= ground_heights
+        
+        # TODO DEBUG
+        # print("base_heights",base_heights)
+
+        return base_heights[:] < threshold
 
     def is_done(self) -> None:
         # reset agents
         time_out = self.progress_buf >= self.max_episode_length - 1
-        self.reset_buf[:] = time_out  # TODO 配置其他可能得reset标志位
+        self.reset_buf[:] = time_out | self.fallen_over  # TODO 配置其他可能得reset标志位
