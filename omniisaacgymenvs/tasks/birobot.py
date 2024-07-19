@@ -14,7 +14,7 @@ class BirobotTask(RLTask):
 
         self.update_config(sim_config)
         self._num_observations = 10 # TODO 配置真实的大小
-        self._num_actions = 10
+        self._num_actions = 10   # def num_actions(self): return self._num_actions
 
         RLTask.__init__(self, name, env)
         return
@@ -54,7 +54,7 @@ class BirobotTask(RLTask):
         v_ang = self._task_cfg["env"]["baseInitState"]["vAngular"]
         state = pos + rot + v_lin + v_ang
         self.base_init_state = state
-        
+
         # default joint positions
         self.named_default_joint_angles = self._task_cfg["env"]["defaultJointAngles"]
 
@@ -102,13 +102,56 @@ class BirobotTask(RLTask):
             "Birobot", get_prim_at_path(birobot.prim_path), self._sim_config.parse_actor_config("Birobot")
         )
 
-        # TODO 在这里使用set_drive 配置机器人关节驱动的参数
+        #           prim_path,                                                  drive_type,  target_type, target_value, stiffness, damping, max_force
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lhipyaw_Joint",  "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lhiproll_Joint", "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lthigh_Joint",   "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lknee_Joint0",   "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lankle_Joint0",  "angular",   "position",  0,            100,       20,      1000)
+
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rhipyaw_Joint",  "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rhiproll_Joint", "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rthigh_Joint",   "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rknee_Joint0",   "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rankle_Joint0",  "angular",   "position",  0,            100,       20,      1000)
+
 
     def get_observations(self) -> dict:
-        pass
         # TODO 配置获取相关的observation
+        base_position, base_rotation = self._birobot.get_world_poses(clone=False)
+        root_velocities = self._birobot.get_velocities(clone=False)
+        dof_pos = self._birobot.get_joint_positions(clone=False)
+        dof_vel = self._birobot.get_joint_velocities(clone=False)
+
+        velocity = root_velocities[:, 0:3]
+        ang_velocity = root_velocities[:, 3:6]
+
+        base_lin_vel = quat_rotate_inverse(base_rotation, velocity) * self.lin_vel_scale
+        base_ang_vel = quat_rotate_inverse(base_rotation, ang_velocity) * self.ang_vel_scale
+        projected_gravity = quat_rotate(torso_rotation, self.gravity_vec)  # 将重力向量self.gravity_vec从世界坐标系转换到躯干坐标系
+        dof_pos_scaled = (dof_pos - self.default_dof_pos) * self.dof_pos_scale
         
-        # self.obs_buf = 
+        commands_scaled = self.commands * torch.tensor(
+            [self.lin_vel_scale, self.lin_vel_scale, self.ang_vel_scale],
+            requires_grad=False,
+            device=self.commands.device,
+        )
+
+        self.obs_buf = torch.cat(
+            (
+                base_lin_vel,
+                base_ang_vel,
+                projected_gravity,
+                commands_scaled,
+                dof_pos_scaled,
+                dof_vel * self.dof_vel_scale,
+                self.actions,
+            ),
+            dim=-1,
+        )
+
+        observations = {self._birobot.name: {"obs_buf": self.obs_buf}}
+        return observations
 
     def pre_physics_step(self, actions) -> None:
         if not self.world.is_playing():
@@ -117,6 +160,15 @@ class BirobotTask(RLTask):
         reset_env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)
         if len(reset_env_ids) > 0:
             self.reset_idx(reset_env_ids)
+
+        indices = torch.arange(self._birobot.count, dtype=torch.int32, device=self._device)
+        self.actions[:] = actions.clone().to(self._device)
+        current_targets = self.current_targets + self.action_scale * self.actions * self.dt
+        self.current_targets[:] = tensor_clamp(
+            current_targets, self.anymal_dof_lower_limits, self.anymal_dof_upper_limits
+        )
+        self._anymals.set_joint_position_targets(self.current_targets, indices)
+
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
@@ -127,7 +179,7 @@ class BirobotTask(RLTask):
         self.progress_buf[env_ids] = 0
 
     def post_reset(self):
-        # TODO 还不知道这个函数有什么用
+        # 函数会在仿真前被调用一次
         pass
 
     def calculate_metrics(self) -> None:

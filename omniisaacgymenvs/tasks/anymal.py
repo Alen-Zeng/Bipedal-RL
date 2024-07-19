@@ -43,7 +43,7 @@ class AnymalTask(RLTask):
 
         self.update_config(sim_config)
         self._num_observations = 48
-        self._num_actions = 12
+        self._num_actions = 12    # def num_actions(self): return self._num_actions
 
         RLTask.__init__(self, name, env)
         return
@@ -138,7 +138,10 @@ class AnymalTask(RLTask):
                 joint_paths.append(f"{quadrant}_{component}/{quadrant}_{abbrev}FE")
             joint_paths.append(f"base/{quadrant}_HAA")
         for joint_path in joint_paths:
+            # prim_path, drive_type, target_type, target_value, stiffness, damping, max_force
             set_drive(f"{anymal.prim_path}/{joint_path}", "angular", "position", 0, 400, 40, 1000)
+            # TODO DEBUG
+            print("joint_path",f"{anymal.prim_path}/{joint_path}")
 
     def get_observations(self) -> dict:
         torso_position, torso_rotation = self._anymals.get_world_poses(clone=False)
@@ -153,7 +156,7 @@ class AnymalTask(RLTask):
                        
         base_lin_vel = quat_rotate_inverse(torso_rotation, velocity) * self.lin_vel_scale
         base_ang_vel = quat_rotate_inverse(torso_rotation, ang_velocity) * self.ang_vel_scale
-        projected_gravity = quat_rotate(torso_rotation, self.gravity_vec)
+        projected_gravity = quat_rotate(torso_rotation, self.gravity_vec)  # 将重力向量self.gravity_vec从世界坐标系转换到躯干坐标系
         dof_pos_scaled = (dof_pos - self.default_dof_pos) * self.dof_pos_scale
 
         commands_scaled = self.commands * torch.tensor(
@@ -165,10 +168,11 @@ class AnymalTask(RLTask):
 
 
         # TODO DEBUG
-        print("dof_pos",dof_pos)
-        print("velocity",velocity)
-        print("ang_velocity",ang_velocity)
-        print("self.actions",self.actions)
+        # print("dof_pos",dof_pos)
+        # print("velocity",velocity)
+        # print("ang_velocity",ang_velocity)
+        # print("self.actions",self.actions)
+        print("projected_gravity",projected_gravity)
 
 
 
@@ -243,6 +247,10 @@ class AnymalTask(RLTask):
         self.last_dof_vel[env_ids] = 0.0
 
     def post_reset(self):
+        # TODO DEBUG
+        print("post_reset!!!!")
+
+        
         self.default_dof_pos = torch.zeros(
             (self.num_envs, 12), dtype=torch.float, device=self.device, requires_grad=False
         )
@@ -255,7 +263,7 @@ class AnymalTask(RLTask):
         self.initial_root_pos, self.initial_root_rot = self._anymals.get_world_poses()
         self.current_targets = self.default_dof_pos.clone()
 
-        dof_limits = self._anymals.get_dof_limits()
+        dof_limits = self._anymals.get_dof_limits()  # unit: degrees 
         self.anymal_dof_lower_limits = dof_limits[0, :, 0].to(device=self._device)
         self.anymal_dof_upper_limits = dof_limits[0, :, 1].to(device=self._device)
 
