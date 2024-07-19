@@ -171,6 +171,7 @@ class BirobotTask(RLTask):
 
 
     def reset_idx(self, env_ids):
+        '''每次仿真的复位'''
         num_resets = len(env_ids)
         
         #TODO 配置环境的复位
@@ -179,8 +180,50 @@ class BirobotTask(RLTask):
         self.progress_buf[env_ids] = 0
 
     def post_reset(self):
-        # 函数会在仿真前被调用一次
-        pass
+        '''初始环境复位，环境启动后配置部分参数，函数只会在仿真前被调用一次'''
+
+        self.default_dof_pos = torch.zeros(
+            (self.num_envs, self.num_actions), dtype=torch.float, device=self.device, requires_grad=False
+        )
+
+        dof_names = self._birobot.dof_names
+        for i in range(self.num_actions):
+            name = dof_names[i]
+            angle = self.named_default_joint_angles[name]
+            self.default_dof_pos[:, i] = angle
+
+        self.initial_root_pos, self.initial_root_rot = self._anymals.get_world_poses()
+        self.current_targets = self.default_dof_pos.clone()
+
+        dof_limits = self._anymals.get_dof_limits()  # unit: degrees 
+        self.anymal_dof_lower_limits = dof_limits[0, :, 0].to(device=self._device)
+        self.anymal_dof_upper_limits = dof_limits[0, :, 1].to(device=self._device)
+
+        # init command，控制目标是让机器人保持原地不动？
+        self.commands = torch.zeros(self._num_envs, 3, dtype=torch.float, device=self._device, requires_grad=False)
+        self.commands_y = self.commands.view(self._num_envs, 3)[..., 1]
+        self.commands_x = self.commands.view(self._num_envs, 3)[..., 0]
+        self.commands_yaw = self.commands.view(self._num_envs, 3)[..., 2]
+
+
+        self.extras = {} # no extra data
+
+        self.gravity_vec = torch.tensor([0.0, 0.0, -1.0], device=self._device).repeat((self._num_envs, 1))
+        self.actions = torch.zeros(
+            self._num_envs, self.num_actions, dtype=torch.float, device=self._device, requires_grad=False
+        )
+        self.last_dof_vel = torch.zeros(
+            (self._num_envs, self.num_actions), dtype=torch.float, device=self._device, requires_grad=False
+        )
+        self.last_actions = torch.zeros(
+            self._num_envs, self.num_actions, dtype=torch.float, device=self._device, requires_grad=False
+        )
+
+        # buffer to record timeout environments
+        self.time_out_buf = torch.zeros_like(self.reset_buf)
+        # randomize all envs
+        indices = torch.arange(self._birobot.count, dtype=torch.int64, device=self._device)
+        self.reset_idx(indices)
 
     def calculate_metrics(self) -> None:
         # TODO 各种参数的计算、REWARD的计算
