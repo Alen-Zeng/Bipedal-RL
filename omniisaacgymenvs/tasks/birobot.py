@@ -8,6 +8,7 @@ from omniisaacgymenvs.tasks.base.rl_task import RLTask
 from omniisaacgymenvs.robots.articulations.birobot import Birobot
 from omni.isaac.core.articulations import ArticulationView
 from omniisaacgymenvs.tasks.utils.usd_utils import set_drive
+from omni.isaac.core.prims import RigidPrimView
 
 class BirobotTask(RLTask):
     def __init__(self, name, sim_config, env, offset=None) -> None:
@@ -63,7 +64,7 @@ class BirobotTask(RLTask):
         self.Kd = self._task_cfg["env"]["control"]["damping"]
 
         # simulation / training
-        self.dt = 1 / 60
+        self.dt = 1. / 60.
         self.max_episode_length_s = self._task_cfg["env"]["learn"]["episodeLength_s"]
         self.max_episode_length = int(self.max_episode_length_s / self.dt + 0.5)
 
@@ -85,6 +86,12 @@ class BirobotTask(RLTask):
         )# TODO 正则表达式是怎么确定的
         scene.add(self._birobot)
 
+        # 添加脚部，追踪碰撞
+        self.Lankle_prim = RigidPrimView(prim_paths_expr="/World/envs/.*/Birobot3/Base_Link/Lankle_Link0",name="Lankle_prim",track_contact_forces=True)
+        self.Rankle_prim = RigidPrimView(prim_paths_expr="/World/envs/.*/Birobot3/Base_Link/Rankle_Link0",name="Rankle_prim",track_contact_forces=True)
+        scene.add(self.Lankle_prim)
+        scene.add(self.Rankle_prim)
+
     def initialize_views(self, scene):
         super().initialize_views(scene)
         if scene.object_exists("birobotview"):
@@ -103,21 +110,20 @@ class BirobotTask(RLTask):
         )
 
         #           prim_path,                                                  drive_type,  target_type, target_value, stiffness, damping, max_force
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lhipyaw_Joint",  "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lhiproll_Joint", "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lthigh_Joint",   "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lknee_Joint0",   "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lankle_Joint0",  "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lhipyaw_Joint",  "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lhiproll_Joint", "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lthigh_Joint",   "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lknee_Joint0",   "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Lankle_Joint0",  "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
 
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rhipyaw_Joint",  "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rhiproll_Joint", "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rthigh_Joint",   "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rknee_Joint0",   "angular",   "position",  0,            100,       20,      1000)
-        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rankle_Joint0",  "angular",   "position",  0,            100,       20,      1000)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rhipyaw_Joint",  "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rhiproll_Joint", "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rthigh_Joint",   "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rknee_Joint0",   "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
+        set_drive("/World/envs/env_0/Birobot3/Base_Link/joints/Rankle_Joint0",  "angular",   "position",  0,            self.Kp,   self.Kd,      1600)
 
 
     def get_observations(self) -> dict:
-        # TODO 配置获取相关的observation
         base_position, base_rotation = self._birobot.get_world_poses(clone=False)
         root_velocities = self._birobot.get_velocities(clone=False)
         dof_pos = self._birobot.get_joint_positions(clone=False)
@@ -136,6 +142,11 @@ class BirobotTask(RLTask):
             requires_grad=False,
             device=self.commands.device,
         )
+
+        # TODO DEBUG
+        # print("Lankle_prim force: ",self.Lankle_prim.get_net_contact_forces())
+        # print("Rankle_prim force: ",self.Rankle_prim.get_net_contact_forces())
+
 
         self.obs_buf = torch.cat(
             (
@@ -178,7 +189,9 @@ class BirobotTask(RLTask):
 
         self.current_targets[env_ids] = dof_pos[:]
 
-        root_vel = torch.zeros((num_resets, 6), device=self._device)
+        # root_vel = torch.zeros((num_resets, 6), device=self._device)
+        root_vel = torch_rand_float(-0.01, 0.01, (num_resets, 6), device=self._device)
+
         
         # apply resets
         indices = env_ids.to(dtype=torch.int32)
@@ -200,6 +213,9 @@ class BirobotTask(RLTask):
             self.command_yaw_range[0], self.command_yaw_range[1], (num_resets, 1), device=self._device
         ).squeeze()
 
+        # TODO DEBUG
+        # print("commands_x",self.commands_x)
+
         self.reset_buf[env_ids] = 0
         self.progress_buf[env_ids] = 0
         self.last_actions[env_ids] = 0.0
@@ -211,6 +227,11 @@ class BirobotTask(RLTask):
         self.default_dof_pos = torch.zeros(
             (self.num_envs, self.num_actions), dtype=torch.float, device=self.device, requires_grad=False
         )
+
+        # TODO DEBUG
+        print("Base_Link index:",self._birobot.get_body_index("Base_Link"))
+        print("Lankle_Link0 index:",self._birobot.get_body_index("Lankle_Link0"))
+        print("Rankle_Link0 index:",self._birobot.get_body_index("Rankle_Link0"))
 
         dof_names = self._birobot.dof_names
         for i in range(self.num_actions):
@@ -225,10 +246,11 @@ class BirobotTask(RLTask):
         self.birobot_dof_lower_limits = dof_limits[0, :, 0].to(device=self._device)
         self.birobot_dof_upper_limits = dof_limits[0, :, 1].to(device=self._device)
 
-        # init command，控制目标是让机器人保持原地不动？
+        # init command
         self.commands = torch.zeros(self._num_envs, 3, dtype=torch.float, device=self._device, requires_grad=False)
-        self.commands_y = self.commands.view(self._num_envs, 3)[..., 1]
+        self.commands[:, 0] = 1
         self.commands_x = self.commands.view(self._num_envs, 3)[..., 0]
+        self.commands_y = self.commands.view(self._num_envs, 3)[..., 1]
         self.commands_yaw = self.commands.view(self._num_envs, 3)[..., 2]
 
 
@@ -252,7 +274,6 @@ class BirobotTask(RLTask):
         self.reset_idx(indices)
 
     def calculate_metrics(self) -> None:
-        # TODO 各种参数的计算、REWARD的计算
         base_position, base_rotation = self._birobot.get_world_poses(clone=False)
         root_velocities = self._birobot.get_velocities(clone=False)
         dof_pos = self._birobot.get_joint_positions(clone=False)
@@ -300,4 +321,5 @@ class BirobotTask(RLTask):
     def is_done(self) -> None:
         # reset agents
         time_out = self.progress_buf >= self.max_episode_length - 1
-        self.reset_buf[:] = time_out | self.fallen_over  # TODO 配置其他可能得reset标志位
+
+        self.reset_buf[:] = time_out #| self.fallen_over  # TODO 配置其他可能得reset标志位
