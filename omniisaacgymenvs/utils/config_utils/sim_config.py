@@ -124,6 +124,10 @@ class SimConfig:
         self._sim_params = copy.deepcopy(default_sim_params)
         self._default_physics_material = copy.deepcopy(default_physics_material)
         sim_cfg = self._cfg.get("sim", None)
+        # TODO DEBUG
+        print("sim_cfg keys",sim_cfg.keys())
+        print("self._sim_params",self._sim_params)
+
         if sim_cfg is not None:
             for opt in sim_cfg.keys():
                 if opt in self._sim_params:

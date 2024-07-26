@@ -42,6 +42,9 @@ class BirobotTask(RLTask):
         self.rew_scales["joint_acc"] = self._task_cfg["env"]["learn"]["jointAccRewardScale"]
         self.rew_scales["action_rate"] = self._task_cfg["env"]["learn"]["actionRateRewardScale"]
         self.rew_scales["cosmetic"] = self._task_cfg["env"]["learn"]["cosmeticRewardScale"]
+        self.rew_scales["footairtime"] = self._task_cfg["env"]["learn"]["footairtimeRewardScale"]
+        self.rew_scales["nofly"] = self._task_cfg["env"]["learn"]["noflyRewardScale"]
+        self.rew_scales["base_parallel_ground"] = self._task_cfg["env"]["learn"]["base_parallel_ground"]
 
         # command ranges
         self.command_x_range = self._task_cfg["env"]["randomCommandVelocityRanges"]["linear_x"]
@@ -75,7 +78,7 @@ class BirobotTask(RLTask):
         self._env_spacing = self._task_cfg["env"]["envSpacing"]
         self._birobot_translation = torch.tensor([0.0 , 0.0 , 0.0])
 
-
+        
 
 
     def set_up_scene(self, scene) -> None:
@@ -267,6 +270,11 @@ class BirobotTask(RLTask):
             self._num_envs, self.num_actions, dtype=torch.float, device=self._device, requires_grad=False
         )
 
+        # other params
+        self.Lfeet_air_time = torch.zeros(self._num_envs,dtype=torch.float, device=self._device, requires_grad=False)
+        self.Rfeet_air_time = torch.zeros(self._num_envs,dtype=torch.float, device=self._device, requires_grad=False)
+        self.base_ori = torch.tensor([1.,0.,0.,0.], dtype=torch.float, device=self._device, requires_grad=False)
+
         # buffer to record timeout environments
         self.time_out_buf = torch.zeros_like(self.reset_buf)
         # randomize all envs
@@ -278,6 +286,8 @@ class BirobotTask(RLTask):
         root_velocities = self._birobot.get_velocities(clone=False)
         dof_pos = self._birobot.get_joint_positions(clone=False)
         dof_vel = self._birobot.get_joint_velocities(clone=False)
+        left_foot_contact_force = self.Lankle_prim.get_net_contact_forces(dt=self.dt)
+        right_foot_contact_force = self.Rankle_prim.get_net_contact_forces(dt=self.dt)
 
         velocity = root_velocities[:, 0:3]
         ang_velocity = root_velocities[:, 3:6]
@@ -295,12 +305,26 @@ class BirobotTask(RLTask):
         rew_action_rate = (
             torch.sum(torch.square(self.last_actions - self.actions), dim=1) * self.rew_scales["action_rate"]
         )
-        total_reward = rew_lin_vel_xy + rew_ang_vel_z + rew_joint_acc + rew_action_rate + rew_lin_vel_z
+        rew_feet_air_time = self.get_foot_air_time_reward(left_foot_contact_force,right_foot_contact_force) * self.rew_scales["footairtime"]
+        rew_no_fly = torch.logical_or(left_foot_contact_force[:,2],right_foot_contact_force[:,2]) * self.rew_scales["nofly"]
+        rew_base_parallel_ground = torch.exp(-(torch.sum(torch.square(base_rotation-self.base_ori),dim=1))) * self.rew_scales["base_parallel_ground"]
+
+        total_reward = (rew_lin_vel_xy 
+                       + rew_ang_vel_z 
+                       + rew_joint_acc 
+                       + rew_action_rate 
+                       + rew_lin_vel_z 
+                       + rew_feet_air_time 
+                       + rew_no_fly 
+                       + rew_base_parallel_ground)
         total_reward = torch.clip(total_reward, 0.0, None)
 
-        self.fallen_over = self.is_base_below_threshold(threshold=0.39, ground_heights=0.0)
+        self.fallen_over = self.is_base_below_threshold(threshold=0.38, ground_heights=0.0)
         # TODO DEBUG
         # print("fallen over",self.fallen_over)
+        # print("base_rotation",base_rotation)
+        # print("rew_base_parallel_ground",rew_base_parallel_ground)
+        # print("rew_feet_air_time",rew_feet_air_time)
 
         total_reward[torch.nonzero(self.fallen_over)] = -1
         self.rew_buf[:] = total_reward.detach()
@@ -322,4 +346,24 @@ class BirobotTask(RLTask):
         # reset agents
         time_out = self.progress_buf >= self.max_episode_length - 1
 
-        self.reset_buf[:] = time_out #| self.fallen_over  # TODO 配置其他可能得reset标志位
+        self.reset_buf[:] = time_out | self.fallen_over  # TODO 配置其他可能得reset标志位
+
+    def get_foot_air_time_reward(self,left_foot_contact_force,right_foot_contact_force):
+        '''返回抬脚的奖励，不包含奖励系数'''
+        left_if_contact = left_foot_contact_force[:,2]>0.1
+        left_first_contact = (self.Lfeet_air_time > 0.) * left_if_contact
+        self.Lfeet_air_time += self.dt
+        # TODO DEBUG
+        # print("Lfeet_air_time",self.Lfeet_air_time)
+        left_rew_airTime = self.Lfeet_air_time * left_first_contact
+        self.Lfeet_air_time *= ~left_if_contact
+        
+        right_if_contact = right_foot_contact_force[:,2]>0.1
+        right_first_contact = (self.Rfeet_air_time > 0.) * right_if_contact
+        self.Rfeet_air_time += self.dt
+        # TODO DEBUG
+        # print("Lfeet_air_time",self.Lfeet_air_time)
+        right_rew_airTime = self.Rfeet_air_time * right_first_contact
+        self.Rfeet_air_time *= ~right_if_contact
+
+        return (left_rew_airTime + right_rew_airTime)

@@ -50,6 +50,9 @@ env:
     jointAccRewardScale: -0.0003
     actionRateRewardScale: -0.006
     cosmeticRewardScale: -0.06
+    footairtimeRewardScale: 0.3
+    noflyRewardScale: 0.5
+    base_parallel_ground: 0.2
 
     # normalization
     linearVelocityScale: 2.0
